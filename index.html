@@ -1969,20 +1969,22 @@ function TabBar({ tabs, active, onChange, style }) {
 }
 
 
-// Small download icon for inline export
+// Download button for tables
 function MiniExport({ onClick, title }) {
  return (
   <button onClick={e => { e.stopPropagation(); onClick(); }} title={title || "Esporta CSV"} style={{
-   background: "transparent", border: "none", cursor: "pointer", padding: 3, borderRadius: 4,
-   color: C.textDim, transition: "all 0.15s", display: "inline-flex", alignItems: "center",
-   justifyContent: "center", opacity: 0.5,
+   background: "#fff", border: "1.5px solid #1a1625", cursor: "pointer",
+   padding: "6px 14px", borderRadius: 8, color: "#1a1625", transition: "all 0.18s",
+   display: "inline-flex", alignItems: "center", gap: 6, fontSize: 11, fontWeight: 700,
+   fontFamily: "inherit", letterSpacing: 0.3, boxShadow: "0 2px 8px rgba(0,0,0,0.10)",
   }}
-  onMouseEnter={e => { e.currentTarget.style.opacity = "1"; e.currentTarget.style.color = C.accent; }}
-  onMouseLeave={e => { e.currentTarget.style.opacity = "0.5"; e.currentTarget.style.color = C.textDim; }}
+  onMouseEnter={e => { e.currentTarget.style.background = "#1a1625"; e.currentTarget.style.color = "#fff"; e.currentTarget.style.transform = "translateY(-1px)"; e.currentTarget.style.boxShadow = "0 4px 14px rgba(0,0,0,0.18)"; }}
+  onMouseLeave={e => { e.currentTarget.style.background = "#fff"; e.currentTarget.style.color = "#1a1625"; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "0 2px 8px rgba(0,0,0,0.10)"; }}
   >
-   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
    </svg>
+   Esporta CSV
   </button>
  );
 }
@@ -2006,8 +2008,9 @@ function DataTable({ columns, data, maxHeight = 400, exportFilename }) {
 
  return (
  <div style={{ position: "relative" }}>
- {sorted.length > 0 && (
-  <div style={{ position: "absolute", top: 6, right: 8, zIndex: 3 }}>
+ {sorted.length > 0 && exportFilename && (
+  <div style={{ display: "flex", justifyContent: "flex-end", alignItems: "center", marginBottom: 8, gap: 8 }}>
+   <span style={{ fontSize: 10, color: C.textDim }}>{sorted.length} righe</span>
    <MiniExport onClick={() => {
     const exportData = sorted.map(row => {
      const obj = {};
@@ -2015,7 +2018,7 @@ function DataTable({ columns, data, maxHeight = 400, exportFilename }) {
      return obj;
     });
     exportToCSV(exportData, (exportFilename || "export_tabella") + "_" + new Date().toISOString().slice(0,10));
-   }} title={`Esporta ${sorted.length} righe`} />
+   }} title={`Esporta ${sorted.length} righe in CSV`} />
   </div>
  )}
  <div style={{ overflowX: "auto", overflowY: "auto", maxHeight, borderRadius: 8, border: `1px solid ${C.border}`, boxShadow: "0 1px 4px rgba(45,27,78,0.06)" }}>
@@ -3081,8 +3084,8 @@ function EnergyPODAnalysis() {
  <ResponsiveContainer width="100%" height={200}>
  <PieChart>
  <Pie data={[
- { name: "F1 Punta", value: pod.consumoF1, color: C.f1 },
- { name: "F2 Intermedia", value: pod.consumoF2, color: C.f2 },
+ { name: "F1", value: pod.consumoF1, color: C.f1 },
+ { name: "F2", value: pod.consumoF2, color: C.f2 },
  { name: "F3 Fuori punta", value: pod.consumoF3, color: C.f3 },
  ]} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value" stroke="none">
  <Cell fill={C.f1} /><Cell fill={C.f2} /><Cell fill={C.f3} />
@@ -3522,8 +3525,8 @@ function EnergyConsumption() {
  <YAxis yAxisId="right" orientation="right" tick={{ fill: C.energyLight, fontSize: 11 }} tickFormatter={v => `€${v}`} domain={[0, "auto"]} />
  <Tooltip contentStyle={customTooltipStyle} />
  <Legend wrapperStyle={{ fontSize: 11 }} />
- <Bar yAxisId="left" dataKey="f1" stackId="a" fill={C.f1} name="F1 Punta" />
- <Bar yAxisId="left" dataKey="f2" stackId="a" fill={C.f2} name="F2 Intermedia" />
+ <Bar yAxisId="left" dataKey="f1" stackId="a" fill={C.f1} name="F1" />
+ <Bar yAxisId="left" dataKey="f2" stackId="a" fill={C.f2} name="F2" />
  <Bar yAxisId="left" dataKey="f3" stackId="a" fill={C.f3} name="F3 Fuori punta" radius={[4,4,0,0]} />
  <Line yAxisId="right" dataKey="costoUnitario" stroke={C.energyLight} strokeWidth={2.5} dot={{ r: 3, fill: C.energyLight }} name="€/kWh" />
  </ComposedChart>
@@ -3737,7 +3740,7 @@ function GasPDRAnalysis() {
  <Pie data={[
  { name: "Materia Prima", value: +pdr.totQV.toFixed(0), color: C.materia },
  { name: "Trasporto", value: +pdr.totTrasporto.toFixed(0), color: C.distrib },
- { name: "Oneri Sistema", value: +pdr.totOneri.toFixed(0), color: C.oneri },
+ { name: "Oneri di Sistema", value: +pdr.totOneri.toFixed(0), color: C.oneri },
  { name: "Accise", value: +pdr.totAccise.toFixed(0), color: C.imposte },
  ]} cx="50%" cy="50%" innerRadius={45} outerRadius={75} paddingAngle={3} dataKey="value" stroke="none">
  <Cell fill={C.materia} /><Cell fill={C.distrib} /><Cell fill={C.oneri} /><Cell fill={C.imposte} />
@@ -3981,7 +3984,7 @@ function GasCompetenza() {
  { name: "Materia Prima (QV)", value: +totQV.toFixed(0), color: C.materia },
  { name: "Quota Fissa (QF)", value: +totQF.toFixed(0), color: C.energy },
  { name: "Trasporto", value: +totTr.toFixed(0), color: C.distrib },
- { name: "Oneri Sistema", value: +totOn.toFixed(0), color: C.oneri },
+ { name: "Oneri di Sistema", value: +totOn.toFixed(0), color: C.oneri },
  { name: "Accise", value: +totAc.toFixed(0), color: C.imposte },
  ];
  return (
@@ -6773,7 +6776,7 @@ function BuildingDetail({ building: b, onClose }) {
 
   const compEntries = Object.entries(components);
   const compColors = isPod ? [C.energy, "#ef4444", "#6d28d9", "#78716c"] : [C.gas, "#f59e0b", "#6d28d9", "#78716c"];
-  const compLabels = isPod ? ["Commodity", "Dispacciamento", "Oneri Sistema", "Accise"] : ["Materia Prima", "Trasporto", "Oneri", "Imposte"];
+  const compLabels = isPod ? ["Materia Prima", "Dispacciamento", "Oneri di Sistema", "Accise"] : ["Materia Prima", "Trasporto", "Oneri", "Imposte"];
 
   // Fasce (POD only)
   const fasce = isPod ? {
@@ -6853,7 +6856,7 @@ function BuildingDetail({ building: b, onClose }) {
        <div style={{ marginBottom: 18 }}>
         <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 8 }}>Ripartizione Fasce Orarie</div>
         <div style={{ display: "flex", gap: 10 }}>
-         {[{ k: "F1", l: "F1 Punta", c: C.f1 }, { k: "F2", l: "F2 Intermedia", c: C.f2 }, { k: "F3", l: "F3 Off-Peak", c: C.f3 }].map(f => {
+         {[{ k: "F1", l: "F1", c: C.f1 }, { k: "F2", l: "F2", c: C.f2 }, { k: "F3", l: "F3", c: C.f3 }].map(f => {
           const pct = totConsumo > 0 ? (fasce[f.k] / totConsumo * 100).toFixed(1) : 0;
           return (
            <div key={f.k} style={{ flex: 1, padding: "10px 12px", borderRadius: 10, background: `${f.c}08`, border: `1px solid ${f.c}22`, textAlign: "center" }}>
@@ -6927,7 +6930,7 @@ function BuildingDetail({ building: b, onClose }) {
           <tr>
            <th style={{ textAlign: "left", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>Periodo</th>
            <th style={{ textAlign: "right", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>Consumo</th>
-           <th style={{ textAlign: "right", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>{isPod ? "Commodity" : "Materia"}</th>
+           <th style={{ textAlign: "right", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>{isPod ? "Materia Prima" : "Materia Prima"}</th>
            <th style={{ textAlign: "right", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>Totale</th>
            {isPod && <th style={{ textAlign: "right", padding: "8px 10px", fontWeight: 600, color: C.textDim, borderBottom: `1px solid ${C.border}` }}>Pot. Max</th>}
           </tr>
@@ -7433,7 +7436,7 @@ function useWidgetData(sourceKey, filters) {
    case "spesa_totale": return monthly.map(m => ({ name: m.mese, value: Math.round(m.eCost + m.gCost + m.wCost), ...(hasCmp ? { compare: Math.round(m.eCostCmp + m.gCostCmp + wSpesa / 12) } : {}) }));
    case "energia_consumo": return monthly.map(m => ({ name: m.mese, value: Math.round(m.eKwh), ...(hasCmp ? { compare: Math.round(m.eKwhCmp) } : {}) }));
    case "gas_consumo": return monthly.map(m => ({ name: m.mese, value: Math.round(m.gSmc), ...(hasCmp ? { compare: Math.round(m.gSmcCmp) } : {}) }));
-   case "fasce_consumo": { const f1 = eF.reduce((s, d) => s + d.consumoF1, 0); const f2 = eF.reduce((s, d) => s + d.consumoF2, 0); const f3 = eF.reduce((s, d) => s + d.consumoF3, 0); return [{ name: "F1 Punta", value: Math.round(f1) }, { name: "F2 Interm.", value: Math.round(f2) }, { name: "F3 Off-Peak", value: Math.round(f3) }]; }
+   case "fasce_consumo": { const f1 = eF.reduce((s, d) => s + d.consumoF1, 0); const f2 = eF.reduce((s, d) => s + d.consumoF2, 0); const f3 = eF.reduce((s, d) => s + d.consumoF3, 0); return [{ name: "F1", value: Math.round(f1) }, { name: "F2", value: Math.round(f2) }, { name: "F3", value: Math.round(f3) }]; }
    case "prezzo_energia_f1": return monthly.map(m => ({ name: m.mese, value: +(m.pF1.toFixed(6)), ...(hasCmp ? { compare: +(m.pF1Cmp.toFixed(6)) } : {}) }));
    case "prezzo_energia_f2": return monthly.map(m => ({ name: m.mese, value: +(m.pF2.toFixed(6)), ...(hasCmp ? { compare: +(m.pF2Cmp.toFixed(6)) } : {}) }));
    case "prezzo_energia_f3": return monthly.map(m => ({ name: m.mese, value: +(m.pF3.toFixed(6)), ...(hasCmp ? { compare: +(m.pF3Cmp.toFixed(6)) } : {}) }));
@@ -7446,7 +7449,7 @@ function useWidgetData(sourceKey, filters) {
    case "budget_vs_actual": return monthly.map(m => ({ name: m.mese, budget: Math.round((m.eCost + m.gCost) * 1.08), actual: Math.round(m.eCost + m.gCost) }));
    case "utility_mix": { const totE = eF.reduce((s, d) => s + d.totaleFattura, 0); const totG = gF.reduce((s, d) => s + d.totaleFattura, 0); return [{ name: "Energia", value: Math.round(totE) }, { name: "Gas", value: Math.round(totG) }, { name: "Acqua", value: Math.round(wSpesa) }]; }
    case "top_siti": return BUILDINGS.slice(0, 8).map(b => { const cost = eF.filter(d => b.devices.pods.includes(d.pod)).reduce((s, d) => s + d.totaleFattura, 0) + gF.filter(d => b.devices.pdrs.includes(d.pdr)).reduce((s, d) => s + d.totaleFattura, 0); return { name: b.name.length > 14 ? b.name.slice(0, 14) + "\u2026" : b.name, value: Math.round(cost) }; }).sort((a, b) => b.value - a.value);
-   case "energia_componenti": return monthly.map(m => ({ name: m.mese, "Commodity": Math.round(m.impEnergia), "Dispacc.": Math.round(m.dispacc), "Oneri": Math.round(m.oneriE), "Accise": Math.round(m.accise) }));
+   case "energia_componenti": return monthly.map(m => ({ name: m.mese, "Materia Prima": Math.round(m.impEnergia), "Dispacc.": Math.round(m.dispacc), "Oneri": Math.round(m.oneriE), "Accise": Math.round(m.accise) }));
    case "gas_componenti": return monthly.map(m => ({ name: m.mese, "Materia": Math.round(m.impMateria), "Trasporto": Math.round(m.trasporto), "Oneri": Math.round(m.oneriG) }));
    case "potenza_max": return monthly.map(m => ({ name: m.mese, value: Math.round(m.potMax * 10) / 10 }));
    default: return monthly.map(m => ({ name: m.mese, value: Math.round(m.eCost + m.gCost + m.wCost) }));
@@ -7499,7 +7502,7 @@ function WidgetChart({ widget }) {
  const ttStyle = { background: "#fff", border: "1px solid #e2dce8", borderRadius: 8, fontSize: 11, boxShadow: "0 4px 16px rgba(0,0,0,0.1)" };
  const hasCmp = singleData[0]?.compare !== undefined;
  const hasForecast = singleData[0]?.forecast !== undefined;
- const hasComponents = singleData[0]?.["Commodity"] !== undefined || singleData[0]?.["Materia"] !== undefined;
+ const hasComponents = singleData[0]?.["Materia Prima"] !== undefined || singleData[0]?.["Materia"] !== undefined;
  const color = primarySrc?.color || C.accent;
 
  // ── KPI ──
@@ -8657,8 +8660,7 @@ function App() {
  );
 }
 const container = document.getElementById("root");
-const root = ReactDOM.createRoot(container);
-root.render(React.createElement(App));
+ReactDOM.render(React.createElement(App), container);
   </script>
 </body>
 </html>

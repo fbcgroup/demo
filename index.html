@@ -2100,19 +2100,19 @@ const customTooltipStyle = { background: "#fff", border: `1px solid ${C.border}`
 // ─── MAP TILE STYLES ────────────────────────────────────────────────────────
 
 const NOTIFICATIONS = [
- { id: 1, type: "alert", cat: "consumi", icon: "\u26a0", color: "#ef4444", title: "Superamento soglia consumi Gennaio", desc: "POD IT001E00012345 (Sede Torino): +18% vs media trimestrale. 137.473 kWh vs media 116.500 kWh.", time: "2h fa", read: false },
- { id: 2, type: "alert", cat: "consumi", icon: "\u26a0", color: "#f59e0b", title: "Picco potenza anomalo", desc: "POD IT001E00077003 (Milano Cordusio): picco 312 kW, +22% vs contrattuale (256 kW).", time: "5h fa", read: false },
- { id: 3, type: "alert", cat: "consumi", icon: "\ud83d\udca7", color: "#0ea5e9", title: "Consumo acqua elevato Dicembre", desc: "Sede Torino Via Bertola: consumo idrico +35% vs media. Possibile perdita.", time: "1g fa", read: true },
- { id: 4, type: "billing", cat: "fatture", icon: "\ud83d\udce8", color: "#7c3aed", title: "3 nuove fatture energia", desc: "Fatture Feb 2025 caricate: Sede Torino, Milano, Filiale Roma. Tot: \u20ac78.421.", time: "3h fa", read: false },
- { id: 5, type: "billing", cat: "fatture", icon: "\ud83d\udcb0", color: "#ef4444", title: "Conguaglio rilevato \u20ac2.840", desc: "POD IT001E00054321 (Milano). Periodo Gen-Mar 2024. Scadenza: 15/03/2025.", time: "1g fa", read: false },
- { id: 6, type: "billing", cat: "fatture", icon: "\u23f0", color: "#f59e0b", title: "3 fatture gas in scadenza", desc: "Scadenza 28/02/2025. Importo totale: \u20ac34.200. PDR: Torino, Milano, Roma.", time: "2g fa", read: true },
- { id: 7, type: "ticket", cat: "ticket", icon: "\u2705", color: "#10b981", title: "Ticket #TK-042 risolto", desc: "Verifica contatore PDR Torino completata. Lettura confermata dal distributore.", time: "4h fa", read: false },
- { id: 8, type: "ticket", cat: "ticket", icon: "\ud83d\udcac", color: "#6d28d9", title: "Risposta su Ticket #TK-039", desc: "FBC: \u201cProposta cambio tariffa inviata al fornitore, risposta entro 48h.\u201d", time: "6h fa", read: false },
- { id: 9, type: "ticket", cat: "ticket", icon: "\ud83d\udce9", color: "#0ea5e9", title: "Ticket #TK-045 aperto", desc: "Segnalazione auto: fattura gas Bologna con importo anomalo (+45%).", time: "1g fa", read: true },
- { id: 10, type: "contract", cat: "contratti", icon: "\ud83d\udcc4", color: "#f59e0b", title: "Contratto gas in scadenza", desc: "Fornitura gas Eni per Reale Immobili scade 31/03/2025. Avviare rinnovo.", time: "3g fa", read: true },
- { id: 11, type: "contract", cat: "contratti", icon: "\ud83d\udcc4", color: "#10b981", title: "Rinnovo energia confermato", desc: "Enel per Italiana Assicurazioni rinnovato fino 31/12/2026. -4% prezzo F1.", time: "5g fa", read: true },
- { id: 12, type: "alert", cat: "budget", icon: "\ud83d\udcca", color: "#ef4444", title: "Budget Q4 superato +8%", desc: "Spesa energetica Q4 2024 oltre budget di \u20ac42.600. Torino +12%, Data Center +9%.", time: "1 sett.", read: true },
- { id: 13, type: "alert", cat: "budget", icon: "\ud83d\udcc8", color: "#10b981", title: "Forecast aggiornato Q1 2025", desc: "Proiezione: \u20ac285.000 (\u20ac12.000 sotto budget). Trend positivo.", time: "1 sett.", read: true },
+ { id: 1, type: "alert", cat: "consumi", icon: "⚠", color: "#ef4444", title: "Superamento soglia consumi Gennaio", desc: "POD IT001E00012345 (Sede Torino): +18% vs media trimestrale. 137.473 kWh vs media 116.500 kWh.", time: "2h fa", read: false },
+ { id: 2, type: "alert", cat: "consumi", icon: "⚠", color: "#f59e0b", title: "Picco potenza anomalo", desc: "POD IT001E00077003 (Milano Cordusio): picco 312 kW, +22% vs contrattuale (256 kW).", time: "5h fa", read: false },
+ { id: 3, type: "alert", cat: "consumi", icon: "💧", color: "#0ea5e9", title: "Consumo acqua elevato Dicembre", desc: "Sede Torino Via Bertola: consumo idrico +35% vs media. Possibile perdita.", time: "1g fa", read: true },
+ { id: 4, type: "billing", cat: "fatture", icon: "📨", color: "#7c3aed", title: "3 nuove fatture energia", desc: "Fatture Feb 2025 caricate: Sede Torino, Milano, Filiale Roma. Tot: €78.421.", time: "3h fa", read: false },
+ { id: 5, type: "billing", cat: "fatture", icon: "💰", color: "#ef4444", title: "Conguaglio rilevato €2.840", desc: "POD IT001E00054321 (Milano). Periodo Gen-Mar 2024. Scadenza: 15/03/2025.", time: "1g fa", read: false },
+ { id: 6, type: "billing", cat: "fatture", icon: "⏰", color: "#f59e0b", title: "3 fatture gas in scadenza", desc: "Scadenza 28/02/2025. Importo totale: €34.200. PDR: Torino, Milano, Roma.", time: "2g fa", read: true },
+ { id: 7, type: "ticket", cat: "ticket", icon: "✅", color: "#10b981", title: "Ticket #TK-042 risolto", desc: "Verifica contatore PDR Torino completata. Lettura confermata dal distributore.", time: "4h fa", read: false },
+ { id: 8, type: "ticket", cat: "ticket", icon: "💬", color: "#6d28d9", title: "Risposta su Ticket #TK-039", desc: "FBC: 'Proposta cambio tariffa inviata al fornitore, risposta entro 48h.'", time: "6h fa", read: false },
+ { id: 9, type: "ticket", cat: "ticket", icon: "📩", color: "#0ea5e9", title: "Ticket #TK-045 aperto", desc: "Segnalazione auto: fattura gas Bologna con importo anomalo (+45%).", time: "1g fa", read: true },
+ { id: 10, type: "contract", cat: "contratti", icon: "📄", color: "#f59e0b", title: "Contratto gas in scadenza", desc: "Fornitura gas Eni per Reale Immobili scade 31/03/2025. Avviare rinnovo.", time: "3g fa", read: true },
+ { id: 11, type: "contract", cat: "contratti", icon: "📄", color: "#10b981", title: "Rinnovo energia confermato", desc: "Enel per Italiana Assicurazioni rinnovato fino 31/12/2026. -4% prezzo F1.", time: "5g fa", read: true },
+ { id: 12, type: "alert", cat: "budget", icon: "📊", color: "#ef4444", title: "Budget Q4 superato +8%", desc: "Spesa energetica Q4 2024 oltre budget di €42.600. Torino +12%, Data Center +9%.", time: "1 sett.", read: true },
+ { id: 13, type: "alert", cat: "budget", icon: "📈", color: "#10b981", title: "Forecast aggiornato Q1 2025", desc: "Proiezione: €285.000 (€12.000 sotto budget). Trend positivo.", time: "1 sett.", read: true },
 ];
 
 const MAP_TILES = [
@@ -2183,7 +2183,7 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
     const totalPdrs = g.buildings.reduce((s, b) => s + (b.devices?.pdrs?.length || 0), 0);
 
     // Cluster circle
-    var clusterHtml = '<div style="' + mapFont + '
+    var clusterHtml = '<div style="' + mapFont + ';'
      + 'display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 3px 8px ' + shadowCol + ')'
      + '">'
      // Card
@@ -2277,7 +2277,7 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
 
     // Value card label
     var valTxt = val >= 1000000 ? (val / 1000000).toFixed(1) + "M" : val >= 1000 ? Math.round(val / 1000) + "k" : Math.round(val).toString();
-    var labelHtml = '<div style="' + mapFont + '
+    var labelHtml = '<div style="' + mapFont + ';'
      + 'display:flex;flex-direction:column;align-items:center;filter:drop-shadow(0 2px 5px ' + shadowCol + ')'
      + '">'
      + '<div style="'
@@ -2287,8 +2287,8 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
      + 'backdrop-filter:blur(8px);text-align:center;'
      + 'border-bottom:2px solid ' + color + ';'
      + '">'
-     + '<div style="font-size:12px;font-weight:800;color:' + color + '">' + "\u20ac" + valTxt + '</div>'
-     + '<div style="font-size:8px;font-weight:600;color:' + txtSub + '">' + g.city + ' \u00b7 ' + g.buildings.length + ' siti</div>'
+     + '<div style="font-size:12px;font-weight:800;color:' + color + '">' + "€" + valTxt + '</div>'
+     + '<div style="font-size:8px;font-weight:600;color:' + txtSub + '">' + g.city + ' · ' + g.buildings.length + ' siti</div>'
      + '</div></div>';
 
     L.marker([g.lat, g.lng], {
@@ -2299,7 +2299,7 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
     if (!compact) {
      var popHtml = '<div style="font-family:Inter,Poppins,sans-serif;min-width:220px">'
       + '<div style="font-weight:800;font-size:15px;margin-bottom:2px;color:' + color + '">' + g.city + '</div>'
-      + '<div style="font-size:10px;color:#888;margin-bottom:10px">' + g.buildings.length + ' siti \u00b7 ' + getLabel() + '</div>';
+      + '<div style="font-size:10px;color:#888;margin-bottom:10px">' + g.buildings.length + ' siti · ' + getLabel() + '</div>';
 
      if (utilityFilter === "totale") {
       var pcts = [
@@ -2310,19 +2310,19 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
       pcts.forEach(function(p) {
        var pct = g.totalCost > 0 ? (p.v / g.totalCost * 100).toFixed(0) : 0;
        popHtml += '<div style="margin-bottom:6px">'
-        + '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px"><span style="color:#555">' + p.l + '</span><span style="font-weight:700">\u20ac' + Math.round(p.v).toLocaleString("it-IT") + '</span></div>'
+        + '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px"><span style="color:#555">' + p.l + '</span><span style="font-weight:700">€' + Math.round(p.v).toLocaleString("it-IT") + '</span></div>'
         + '<div style="height:4px;border-radius:2px;background:#f0f0f0"><div style="height:4px;border-radius:2px;background:' + p.c + ';width:' + pct + '%"></div></div>'
         + '</div>';
       });
-      popHtml += '<div style="border-top:1px solid #eee;padding-top:6px;display:flex;justify-content:space-between;font-weight:800;font-size:12px"><span>Totale</span><span style="color:' + C.accent + '">\u20ac' + Math.round(g.totalCost).toLocaleString("it-IT") + '</span></div>';
+      popHtml += '<div style="border-top:1px solid #eee;padding-top:6px;display:flex;justify-content:space-between;font-weight:800;font-size:12px"><span>Totale</span><span style="color:' + C.accent + '">€' + Math.round(g.totalCost).toLocaleString("it-IT") + '</span></div>';
      } else {
-      popHtml += '<div style="font-size:20px;font-weight:800;color:' + color + '">\u20ac' + Math.round(val).toLocaleString("it-IT") + '</div>';
+      popHtml += '<div style="font-size:20px;font-weight:800;color:' + color + '">€' + Math.round(val).toLocaleString("it-IT") + '</div>';
      }
 
      popHtml += '<div style="margin-top:10px;border-top:1px solid #eee;padding-top:6px">';
      g.buildings.forEach(function(b) {
       var bVal = utilityFilter === "energia" ? (b.eCost||0) : utilityFilter === "gas" ? (b.gCost||0) : utilityFilter === "acqua" ? (b.wCost||0) : (b.totalCost||0);
-      popHtml += '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;padding:2px 0"><span style="color:#555">' + b.name.split(" - ")[0] + '</span><span style="font-weight:600">\u20ac' + Math.round(bVal).toLocaleString("it-IT") + '</span></div>';
+      popHtml += '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;padding:2px 0"><span style="color:#555">' + b.name.split(" - ")[0] + '</span><span style="font-weight:600">€' + Math.round(bVal).toLocaleString("it-IT") + '</span></div>';
      });
      popHtml += '</div></div>';
      circle.bindPopup(popHtml, { maxWidth: 320, className: "nostromo-popup" });
@@ -2355,7 +2355,7 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 8, flexWrap: "wrap", gap: 8 }}>
     {/* Left: view toggle */}
     <div style={{ display: "flex", gap: 2, background: C.bg, borderRadius: 8, padding: 2, border: "1px solid " + C.border }}>
-     {[{ k: "ubicazione", l: "Ubicazione", icon: "\ud83d\udccd" }, { k: "consumi", l: "Consumi", icon: "\ud83d\udcca" }].map(v => (
+     {[{ k: "ubicazione", l: "Ubicazione", icon: "📍" }, { k: "consumi", l: "Consumi", icon: "📊" }].map(v => (
       <button key={v.k} onClick={() => setMapView(v.k)} style={{
        padding: "6px 16px", borderRadius: 6, border: "none", cursor: "pointer",
        fontSize: 11, fontWeight: 600, fontFamily: "inherit", transition: "all 0.15s",
@@ -2422,14 +2422,14 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
          position: "absolute", top: 14, right: 16, background: "rgba(255,255,255,0.2)",
          border: "none", color: "#fff", width: 28, height: 28, borderRadius: 8,
          cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-        }}>{"\u2715"}</button>
+        }}>{"✕"}</button>
         <div style={{ fontSize: 10, fontWeight: 500, opacity: 0.8, textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 4 }}>Sedi a</div>
         <div style={{ fontSize: 22, fontWeight: 800 }}>{selectedCity}</div>
         <div style={{ display: "flex", gap: 14, marginTop: 10 }}>
          <span style={{ fontSize: 12, fontWeight: 600, opacity: 0.9 }}>{cityBlds.length} {cityBlds.length === 1 ? "sede" : "sedi"}</span>
          <span style={{ fontSize: 12, opacity: 0.7 }}>{cityPods} POD</span>
          <span style={{ fontSize: 12, opacity: 0.7 }}>{cityPdrs} PDR</span>
-         <span style={{ fontSize: 12, fontWeight: 700, marginLeft: "auto" }}>{"\u20ac"}{Math.round(cityTotal).toLocaleString("it-IT")}</span>
+         <span style={{ fontSize: 12, fontWeight: 700, marginLeft: "auto" }}>{"€"}{Math.round(cityTotal).toLocaleString("it-IT")}</span>
         </div>
        </div>
 
@@ -2460,15 +2460,15 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
             <div style={{ fontSize: 10, color: C.textDim, marginBottom: 4 }}>{bld.address}</div>
             <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
              {nPod > 0 && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: `${C.energy}12`, color: C.energy, fontWeight: 700 }}>{"\u26a1"} {nPod} POD</span>}
-             {nPdr > 0 && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: `${C.gas}12`, color: C.gas, fontWeight: 700 }}>{"\ud83d\udd25"} {nPdr} PDR</span>}
-             {(bld.wCost || 0) > 0 && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: `${C.water}12`, color: C.water, fontWeight: 700 }}>{"\ud83d\udca7"} Acqua</span>}
-             <span style={{ fontSize: 9, color: C.textDim }}>{bld.sqm || 0} mq {"\u00b7"} {bld.floors || 0} piani</span>
+             {nPdr > 0 && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: `${C.gas}12`, color: C.gas, fontWeight: 700 }}>{"🔥"} {nPdr} PDR</span>}
+             {(bld.wCost || 0) > 0 && <span style={{ fontSize: 9, padding: "1px 6px", borderRadius: 4, background: `${C.water}12`, color: C.water, fontWeight: 700 }}>{"💧"} Acqua</span>}
+             <span style={{ fontSize: 9, color: C.textDim }}>{bld.sqm || 0} mq {"·"} {bld.floors || 0} piani</span>
             </div>
            </div>
 
            {/* Cost + company */}
            <div style={{ textAlign: "right", flexShrink: 0 }}>
-            <div style={{ fontSize: 16, fontWeight: 800, color: C.accent }}>{"\u20ac"}{Math.round(bld.totalCost || 0).toLocaleString("it-IT")}</div>
+            <div style={{ fontSize: 16, fontWeight: 800, color: C.accent }}>{"€"}{Math.round(bld.totalCost || 0).toLocaleString("it-IT")}</div>
             <div style={{ fontSize: 9, fontWeight: 600, color, marginTop: 2 }}>{compObj?.short || ""}</div>
            </div>
 
@@ -2599,7 +2599,7 @@ function OverviewDashboard() {
  }}>
   <div style={{ padding: "14px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-    <span style={{ fontSize: 15 }}>{"\ud83d\uddfa"}</span>
+    <span style={{ fontSize: 15 }}>{"🗺"}</span>
     <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Mappa Siti</span>
     <span style={{ fontSize: 10, color: C.textDim }}>{"\u2014"} distribuzione geografica</span>
    </div>
@@ -4046,7 +4046,7 @@ function DeviceRegistry() {
 
  const allDevices = useMemo(() => [
  ...PODS.map(p => ({ type: "energia", devType: "pods", typeLabel: "Energia", typeIcon: "\u26a1", identifier: p.id, client: p.client, company: p.company, city: p.city, location: p.site, status: "Attivo", cdc: p.cdc, person: p.person, dept: p.dept, lastCost: ENERGY_DATA.filter(d => d.pod === p.id).slice(-1)[0]?.totaleFattura || 0, building: deviceBuildingMap[`pods:${p.id}`] || null })),
- ...PDRS.map(p => ({ type: "gas", devType: "pdrs", typeLabel: "Gas", typeIcon: "\ud83d\udd25", identifier: p.id, client: p.client, company: p.company, city: p.city, location: p.site, status: "Attivo", cdc: p.cdc, person: p.person, dept: p.dept, lastCost: GAS_DATA.filter(d => d.pdr === p.id).slice(-1)[0]?.totaleFattura || 0, building: deviceBuildingMap[`pdrs:${p.id}`] || null })),
+ ...PDRS.map(p => ({ type: "gas", devType: "pdrs", typeLabel: "Gas", typeIcon: "🔥", identifier: p.id, client: p.client, company: p.company, city: p.city, location: p.site, status: "Attivo", cdc: p.cdc, person: p.person, dept: p.dept, lastCost: GAS_DATA.filter(d => d.pdr === p.id).slice(-1)[0]?.totaleFattura || 0, building: deviceBuildingMap[`pdrs:${p.id}`] || null })),
  ], [deviceBuildingMap]);
 
  // Extract unique values for dropdowns
@@ -4095,7 +4095,7 @@ function DeviceRegistry() {
   {[
    { k: "all", l: "Tutti", icon: "", color: C.accent },
    { k: "energia", l: "POD Energia", icon: "\u26a1", color: C.energy },
-   { k: "gas", l: "PDR Gas", icon: "\ud83d\udd25", color: C.gas },
+   { k: "gas", l: "PDR Gas", icon: "🔥", color: C.gas },
   ].map(t => {
    const count = countByType[t.k];
    const active = filter === t.k;
@@ -4126,8 +4126,8 @@ function DeviceRegistry() {
     placeholder="Cerca per ID, persona, CdC, sede..."
     style={{ width: "100%", padding: "10px 14px 10px 34px", borderRadius: 8, border: `1px solid ${search ? C.accent : C.border}`, background: search ? `${C.accent}05` : C.card, color: C.text, fontSize: 12, fontFamily: "inherit", outline: "none", transition: "all 0.15s" }}
    />
-   <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 13, color: C.textDim, pointerEvents: "none" }}>{"\ud83d\udd0d"}</span>
-   {search && <button onClick={() => setSearch("")} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", border: "none", background: "transparent", color: C.textDim, fontSize: 14, cursor: "pointer" }}>{"\u2715"}</button>}
+   <span style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", fontSize: 13, color: C.textDim, pointerEvents: "none" }}>{"🔍"}</span>
+   {search && <button onClick={() => setSearch("")} style={{ position: "absolute", right: 8, top: "50%", transform: "translateY(-50%)", border: "none", background: "transparent", color: C.textDim, fontSize: 14, cursor: "pointer" }}>{"✕"}</button>}
   </div>
   <button onClick={() => setShowFilters(f => !f)} style={{
    display: "flex", alignItems: "center", gap: 6, padding: "9px 14px", borderRadius: 8,
@@ -4150,16 +4150,16 @@ function DeviceRegistry() {
   }}>
    {/* City filter */}
    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"\ud83c\udfe2"} Citt\u00e0</label>
+    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"🏢"} Città</label>
     <select value={cityFilter} onChange={e => setCityFilter(e.target.value)} style={selectActiveStyle(cityFilter !== "all")}>
-     <option value="all">Tutte le citt\u00e0</option>
+     <option value="all">Tutte le città</option>
      {uniqueCities.map(c => <option key={c} value={c}>{c}</option>)}
     </select>
    </div>
 
    {/* Company filter */}
    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"\ud83c\udfec"} Azienda</label>
+    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"🏬"} Azienda</label>
     <select value={companyFilter} onChange={e => setCompanyFilter(e.target.value)} style={selectActiveStyle(companyFilter !== "all")}>
      <option value="all">Tutte le aziende</option>
      {uniqueCompanies.map(c => {
@@ -4171,7 +4171,7 @@ function DeviceRegistry() {
 
    {/* CdC filter */}
    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"\ud83d\udcb0"} Centro di Costo</label>
+    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"💰"} Centro di Costo</label>
     <select value={cdcFilter} onChange={e => setCdcFilter(e.target.value)} style={selectActiveStyle(cdcFilter !== "all")}>
      <option value="all">Tutti i CdC</option>
      {uniqueCdc.map(c => <option key={c} value={c}>{c}</option>)}
@@ -4180,7 +4180,7 @@ function DeviceRegistry() {
 
    {/* Association filter */}
    <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"\ud83d\udd17"} Associazione Sito</label>
+    <label style={{ fontSize: 10, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: "0.05em" }}>{"🔗"} Associazione Sito</label>
     <select value={assocFilter} onChange={e => setAssocFilter(e.target.value)} style={selectActiveStyle(assocFilter !== "all")}>
      <option value="all">Tutti</option>
      <option value="associato">Associato a sito</option>
@@ -4194,7 +4194,7 @@ function DeviceRegistry() {
      padding: "8px 14px", borderRadius: 8, border: `1px solid ${C.danger}33`,
      background: `${C.danger}08`, color: C.danger, fontSize: 11, fontWeight: 600,
      cursor: "pointer", fontFamily: "inherit", alignSelf: "flex-end", transition: "all 0.15s",
-    }}>{"\u2715"} Reset filtri</button>
+    }}>{"✕"} Reset filtri</button>
    )}
   </div>
  )}
@@ -4202,10 +4202,10 @@ function DeviceRegistry() {
  {/* Active filter badges */}
  {activeFilterCount > 0 && (
   <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 14 }}>
-   {cityFilter !== "all" && <span onClick={() => setCityFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"\ud83c\udfe2"} {cityFilter} <span style={{ opacity: 0.5 }}>{"\u2715"}</span></span>}
-   {companyFilter !== "all" && <span onClick={() => setCompanyFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"\ud83c\udfec"} {COMPANIES.find(c => c.id === companyFilter)?.short || companyFilter} <span style={{ opacity: 0.5 }}>{"\u2715"}</span></span>}
-   {cdcFilter !== "all" && <span onClick={() => setCdcFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"\ud83d\udcb0"} {cdcFilter} <span style={{ opacity: 0.5 }}>{"\u2715"}</span></span>}
-   {assocFilter !== "all" && <span onClick={() => setAssocFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${assocFilter === "non_associato" ? C.warn : C.success}18`, color: assocFilter === "non_associato" ? C.warn : C.success, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"\ud83d\udd17"} {assocFilter === "associato" ? "Associato" : "Non associato"} <span style={{ opacity: 0.5 }}>{"\u2715"}</span></span>}
+   {cityFilter !== "all" && <span onClick={() => setCityFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"🏢"} {cityFilter} <span style={{ opacity: 0.5 }}>{"✕"}</span></span>}
+   {companyFilter !== "all" && <span onClick={() => setCompanyFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"🏬"} {COMPANIES.find(c => c.id === companyFilter)?.short || companyFilter} <span style={{ opacity: 0.5 }}>{"✕"}</span></span>}
+   {cdcFilter !== "all" && <span onClick={() => setCdcFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${C.accent}12`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"💰"} {cdcFilter} <span style={{ opacity: 0.5 }}>{"✕"}</span></span>}
+   {assocFilter !== "all" && <span onClick={() => setAssocFilter("all")} style={{ padding: "3px 10px", borderRadius: 6, background: `${assocFilter === "non_associato" ? C.warn : C.success}18`, color: assocFilter === "non_associato" ? C.warn : C.success, fontSize: 10, fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 4 }}>{"🔗"} {assocFilter === "associato" ? "Associato" : "Non associato"} <span style={{ opacity: 0.5 }}>{"✕"}</span></span>}
    <span style={{ fontSize: 10, color: C.textDim, alignSelf: "center" }}>{filtered.length} risultati</span>
   </div>
  )}
@@ -4221,15 +4221,15 @@ function DeviceRegistry() {
  { key: "building", label: "Sito", render: v => v ? (
  <span style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{v.name}</span>
  ) : (
- <span style={{ fontSize: 11, color: C.warn, fontStyle: "italic" }}>{"\u26a0"} Non associato</span>
+ <span style={{ fontSize: 11, color: C.warn, fontStyle: "italic" }}>{"⚠"} Non associato</span>
  )},
- { key: "city", label: "Citt\u00e0" },
+ { key: "city", label: "Città" },
  { key: "location", label: "Sede / Ubicazione" },
  { key: "status", label: "Stato", render: v => <Badge color={v === "Attivo" ? C.success : C.danger}>{v}</Badge> },
  { key: "cdc", label: "CdC", render: v => <span style={{ fontWeight: 600, color: C.energyLight }}>{v}</span> },
  { key: "person", label: "Assegnatario" },
  { key: "dept", label: "Reparto" },
- { key: "lastCost", label: "Ultimo Costo \u20ac", align: "right", render: v => fmtEuro(v) },
+ { key: "lastCost", label: "Ultimo Costo €", align: "right", render: v => fmtEuro(v) },
  ]}
  data={filtered}
  maxHeight={500}
@@ -6057,7 +6057,7 @@ function BuildingDashboard() {
  }}>
   <div style={{ padding: "14px 18px 10px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
    <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-    <span style={{ fontSize: 15 }}>{"\ud83d\uddfa"}</span>
+    <span style={{ fontSize: 15 }}>{"🗺"}</span>
     <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Mappa Siti</span>
    </div>
    <span style={{ fontSize: 10, color: C.textDim }}>{buildings.length} siti</span>
@@ -6711,7 +6711,7 @@ function BuildingDetail({ building: b, onClose }) {
  onMouseLeave={e => { e.currentTarget.style.borderColor = `${C.gas}22`; e.currentTarget.style.transform = "none"; e.currentTarget.style.boxShadow = "none"; }}
  >
  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
- <span style={{ fontSize: 11, fontWeight: 700, color: C.gas, background: `${C.gas}15`, padding: "2px 8px", borderRadius: 4 }}>{"\ud83d\udd25"} PDR</span>
+ <span style={{ fontSize: 11, fontWeight: 700, color: C.gas, background: `${C.gas}15`, padding: "2px 8px", borderRadius: 4 }}>{"🔥"} PDR</span>
  <span style={{ fontSize: 14, fontWeight: 700, color: C.gas }}>{fmtEuro(cost, 0)}</span>
  </div>
  <div style={{ fontSize: 13, fontWeight: 600, color: C.text, marginTop: 6 }}>{id}</div>
@@ -6731,7 +6731,7 @@ function BuildingDetail({ building: b, onClose }) {
  {selectedDevice && (() => {
   const isPod = selectedDevice.type === "pod";
   const color = isPod ? C.energy : C.gas;
-  const icon = isPod ? "\u26a1" : "\ud83d\udd25";
+  const icon = isPod ? "\u26a1" : "🔥";
   const label = isPod ? "POD" : "PDR";
   const devInfo = isPod ? PODS.find(p => p.id === selectedDevice.id) : PDRS.find(p => p.id === selectedDevice.id);
   if (!devInfo) return null;
@@ -6804,16 +6804,16 @@ function BuildingDetail({ building: b, onClose }) {
        position: "absolute", top: 14, right: 16, background: "rgba(255,255,255,0.2)",
        border: "none", color: "#fff", width: 28, height: 28, borderRadius: 8,
        cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center",
-      }}>{"\u2715"}</button>
+      }}>{"✕"}</button>
       <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
        <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(255,255,255,0.2)", fontWeight: 700 }}>{icon} {label}</span>
        <span style={{ fontSize: 10, opacity: 0.8 }}>{devInfo.site}</span>
       </div>
       <div style={{ fontSize: 20, fontWeight: 800, marginTop: 6, fontFamily: "monospace", letterSpacing: "0.02em" }}>{selectedDevice.id}</div>
       <div style={{ display: "flex", gap: 20, marginTop: 10, flexWrap: "wrap" }}>
-       <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Costo Totale</div><div style={{ fontSize: 18, fontWeight: 800 }}>{"\u20ac"}{Math.round(totCost).toLocaleString("it-IT")}</div></div>
+       <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Costo Totale</div><div style={{ fontSize: 18, fontWeight: 800 }}>{"€"}{Math.round(totCost).toLocaleString("it-IT")}</div></div>
        <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Consumo</div><div style={{ fontSize: 18, fontWeight: 800 }}>{fmt(totConsumo)} {unit}</div></div>
-       <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Prezzo Medio</div><div style={{ fontSize: 18, fontWeight: 800 }}>{"\u20ac"}{avgPrice.toFixed(4)}/{unit}</div></div>
+       <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Prezzo Medio</div><div style={{ fontSize: 18, fontWeight: 800 }}>{"€"}{avgPrice.toFixed(4)}/{unit}</div></div>
        {potMax && <div><div style={{ fontSize: 9, opacity: 0.7, textTransform: "uppercase" }}>Potenza Max</div><div style={{ fontSize: 18, fontWeight: 800 }}>{fmt(potMax, 1)} kW</div></div>}
       </div>
      </div>
@@ -6835,7 +6835,7 @@ function BuildingDetail({ building: b, onClose }) {
         <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginTop: 2 }}>{devInfo.cdc}</div>
        </div>
        <div style={{ padding: "10px 14px", borderRadius: 8, background: C.bg, border: `1px solid ${C.border}` }}>
-        <div style={{ fontSize: 9, color: C.textDim, textTransform: "uppercase", fontWeight: 600 }}>Citt{"\u00e0"}</div>
+        <div style={{ fontSize: 9, color: C.textDim, textTransform: "uppercase", fontWeight: 600 }}>Citt{"à"}</div>
         <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginTop: 2 }}>{devInfo.city}</div>
        </div>
        {isPod && <div style={{ padding: "10px 14px", borderRadius: 8, background: C.bg, border: `1px solid ${C.border}` }}>
@@ -6950,7 +6950,7 @@ function BuildingDetail({ building: b, onClose }) {
 
      {/* Footer */}
      <div style={{ padding: "10px 20px 14px", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center", flexShrink: 0 }}>
-      <span style={{ fontSize: 10, color: C.textDim }}>{rows.length} fatture {"\u00b7"} {years.join(", ")}</span>
+      <span style={{ fontSize: 10, color: C.textDim }}>{rows.length} fatture {"·"} {years.join(", ")}</span>
       <button onClick={() => setSelectedDevice(null)} style={{
        padding: "7px 18px", borderRadius: 8, border: `1px solid ${C.border}`,
        background: C.bg, color: C.textMuted, fontSize: 11, fontWeight: 600,
@@ -7312,37 +7312,37 @@ const NAV_ITEMS = [
 
 const WIDGET_DATA_SOURCES = [
  // ── Spesa ──
- { key: "energia_spesa", label: "Spesa Energia", unit: "\u20ac", color: "#f59e0b", group: "Energia", cat: "Spesa" },
- { key: "gas_spesa", label: "Spesa Gas", unit: "\u20ac", color: "#6366f1", group: "Gas", cat: "Spesa" },
- { key: "acqua_spesa", label: "Spesa Acqua", unit: "\u20ac", color: "#0ea5e9", group: "Acqua", cat: "Spesa" },
- { key: "spesa_totale", label: "Spesa Totale Utility", unit: "\u20ac", color: "#3b82f6", group: "Totale", cat: "Spesa" },
+ { key: "energia_spesa", label: "Spesa Energia", unit: "€", color: "#f59e0b", group: "Energia", cat: "Spesa" },
+ { key: "gas_spesa", label: "Spesa Gas", unit: "€", color: "#6366f1", group: "Gas", cat: "Spesa" },
+ { key: "acqua_spesa", label: "Spesa Acqua", unit: "€", color: "#0ea5e9", group: "Acqua", cat: "Spesa" },
+ { key: "spesa_totale", label: "Spesa Totale Utility", unit: "€", color: "#3b82f6", group: "Totale", cat: "Spesa" },
  // ── Consumo ──
  { key: "energia_consumo", label: "Consumo Energia", unit: "kWh", color: "#e8a317", group: "Energia", cat: "Consumo" },
  { key: "gas_consumo", label: "Consumo Gas", unit: "Smc", color: "#818cf8", group: "Gas", cat: "Consumo" },
  { key: "fasce_consumo", label: "Consumi per Fascia Oraria", unit: "kWh", color: "#f97316", group: "Energia", cat: "Consumo" },
  // ── Valori Unitari ──
- { key: "prezzo_energia_f1", label: "Prezzo Energia F1", unit: "\u20ac/kWh", color: "#ef4444", group: "Energia", cat: "Unitari" },
- { key: "prezzo_energia_f2", label: "Prezzo Energia F2", unit: "\u20ac/kWh", color: "#f97316", group: "Energia", cat: "Unitari" },
- { key: "prezzo_energia_f3", label: "Prezzo Energia F3", unit: "\u20ac/kWh", color: "#84cc16", group: "Energia", cat: "Unitari" },
- { key: "prezzo_energia_medio", label: "Prezzo Medio Energia", unit: "\u20ac/kWh", color: "#d97706", group: "Energia", cat: "Unitari" },
- { key: "prezzo_gas_unitario", label: "Prezzo Unitario Gas", unit: "\u20ac/Smc", color: "#7c3aed", group: "Gas", cat: "Unitari" },
- { key: "costo_unitario_acqua", label: "Costo Unitario Acqua", unit: "\u20ac/mc", color: "#0284c7", group: "Acqua", cat: "Unitari" },
+ { key: "prezzo_energia_f1", label: "Prezzo Energia F1", unit: "€/kWh", color: "#ef4444", group: "Energia", cat: "Unitari" },
+ { key: "prezzo_energia_f2", label: "Prezzo Energia F2", unit: "€/kWh", color: "#f97316", group: "Energia", cat: "Unitari" },
+ { key: "prezzo_energia_f3", label: "Prezzo Energia F3", unit: "€/kWh", color: "#84cc16", group: "Energia", cat: "Unitari" },
+ { key: "prezzo_energia_medio", label: "Prezzo Medio Energia", unit: "€/kWh", color: "#d97706", group: "Energia", cat: "Unitari" },
+ { key: "prezzo_gas_unitario", label: "Prezzo Unitario Gas", unit: "€/Smc", color: "#7c3aed", group: "Gas", cat: "Unitari" },
+ { key: "costo_unitario_acqua", label: "Costo Unitario Acqua", unit: "€/mc", color: "#0284c7", group: "Acqua", cat: "Unitari" },
  // ── Forecast & Budget ──
- { key: "forecast_energia", label: "Forecast Spesa Energia", unit: "\u20ac", color: "#f59e0b", group: "Forecast", cat: "Forecast" },
- { key: "forecast_gas", label: "Forecast Spesa Gas", unit: "\u20ac", color: "#6366f1", group: "Forecast", cat: "Forecast" },
- { key: "forecast_totale", label: "Forecast Spesa Totale", unit: "\u20ac", color: "#8b5cf6", group: "Forecast", cat: "Forecast" },
- { key: "budget_vs_actual", label: "Budget vs Consuntivo", unit: "\u20ac", color: "#ec4899", group: "Budget", cat: "Forecast" },
+ { key: "forecast_energia", label: "Forecast Spesa Energia", unit: "€", color: "#f59e0b", group: "Forecast", cat: "Forecast" },
+ { key: "forecast_gas", label: "Forecast Spesa Gas", unit: "€", color: "#6366f1", group: "Forecast", cat: "Forecast" },
+ { key: "forecast_totale", label: "Forecast Spesa Totale", unit: "€", color: "#8b5cf6", group: "Forecast", cat: "Forecast" },
+ { key: "budget_vs_actual", label: "Budget vs Consuntivo", unit: "€", color: "#ec4899", group: "Budget", cat: "Forecast" },
  // ── Siti & Mix ──
- { key: "utility_mix", label: "Ripartizione per Utility", unit: "\u20ac", color: "#8b5cf6", group: "Mix", cat: "Siti" },
- { key: "top_siti", label: "Top Siti per Costo", unit: "\u20ac", color: "#10b981", group: "Siti", cat: "Siti" },
+ { key: "utility_mix", label: "Ripartizione per Utility", unit: "€", color: "#8b5cf6", group: "Mix", cat: "Siti" },
+ { key: "top_siti", label: "Top Siti per Costo", unit: "€", color: "#10b981", group: "Siti", cat: "Siti" },
  // ── Dettaglio Costi ──
- { key: "energia_componenti", label: "Componenti Costo Energia", unit: "\u20ac", color: "#fbbf24", group: "Energia", cat: "Dettaglio" },
- { key: "gas_componenti", label: "Componenti Costo Gas", unit: "\u20ac", color: "#a78bfa", group: "Gas", cat: "Dettaglio" },
+ { key: "energia_componenti", label: "Componenti Costo Energia", unit: "€", color: "#fbbf24", group: "Energia", cat: "Dettaglio" },
+ { key: "gas_componenti", label: "Componenti Costo Gas", unit: "€", color: "#a78bfa", group: "Gas", cat: "Dettaglio" },
  { key: "potenza_max", label: "Potenza Massima Prelevata", unit: "kW", color: "#dc2626", group: "Energia", cat: "Dettaglio" },
 ];
 
 const WIDGET_CATEGORIES = [
- { key: "Spesa", label: "Spesa", icon: "\u20ac" },
+ { key: "Spesa", label: "Spesa", icon: "€" },
  { key: "Consumo", label: "Consumi", icon: "\u26a1" },
  { key: "Unitari", label: "Valori Unitari", icon: "\u2197" },
  { key: "Forecast", label: "Forecast & Budget", icon: "\u27a1" },
@@ -7520,7 +7520,7 @@ function WidgetChart({ widget }) {
      return (
       <div key={sk} style={{ textAlign: "center", flex: sources.length > 2 ? "1 1 110px" : "1 1 150px", padding: "10px 8px", borderRadius: 12, background: `${src?.color}08`, border: `1px solid ${src?.color}18` }}>
        <div style={{ fontSize: sources.length > 3 ? 20 : 26, fontWeight: 800, color: src?.color, letterSpacing: -0.5 }}>
-        {src?.unit?.startsWith("\u20ac") ? "\u20ac" : ""}{fmtVal}{!src?.unit?.startsWith("\u20ac") && src?.unit ? ` ${src.unit}` : ""}
+        {src?.unit?.startsWith("€") ? "€" : ""}{fmtVal}{!src?.unit?.startsWith("€") && src?.unit ? ` ${src.unit}` : ""}
        </div>
        <div style={{ fontSize: 9, color: C.textMuted, textTransform: "uppercase", marginTop: 3, letterSpacing: 0.4 }}>{src?.label?.replace("Spesa ","").replace("Consumo ","").replace("Prezzo ","")}</div>
        <div style={{ fontSize: 11, fontWeight: 600, color: trend > 0 ? C.danger : C.success, marginTop: 4 }}>
@@ -7815,7 +7815,7 @@ function CustomDashboard() {
       const podInfo = w.pod && w.pod !== "all" ? PODS.find(p => p.id === w.pod) : null;
       const pdrInfo = w.pdr && w.pdr !== "all" ? PDRS.find(p => p.id === w.pdr) : null;
       const wSiteInfo = w.waterSite && w.waterSite !== "all" ? BUILDINGS.find(b => b.id === w.waterSite) : null;
-      const filterTxt = [w.year !== "all" ? w.year : null, w.compareYear ? `vs ${w.compareYear}` : null, (w.monthFrom > 0 || w.monthTo < 11) ? `${MONTHS[w.monthFrom]}-${MONTHS[w.monthTo]}` : null, podInfo ? `POD: ${podInfo.city}` : null, pdrInfo ? `PDR: ${pdrInfo.city}` : null, wSiteInfo ? `H\u2082O: ${wSiteInfo.name?.slice(0,15)}` : null].filter(Boolean).join(" \u00b7 ");
+      const filterTxt = [w.year !== "all" ? w.year : null, w.compareYear ? `vs ${w.compareYear}` : null, (w.monthFrom > 0 || w.monthTo < 11) ? `${MONTHS[w.monthFrom]}-${MONTHS[w.monthTo]}` : null, podInfo ? `POD: ${podInfo.city}` : null, pdrInfo ? `PDR: ${pdrInfo.city}` : null, wSiteInfo ? `H\u2082O: ${wSiteInfo.name?.slice(0,15)}` : null].filter(Boolean).join(" · ");
       return (
        <div key={w.id} draggable onDragStart={e => onDragStart(e, w.id)} onDragOver={e => onDragOver(e, w.id)} onDragLeave={onDragLeave} onDrop={e => onDrop(e, w.id)} onDragEnd={onDragEnd}
         style={{
@@ -7840,7 +7840,7 @@ function CustomDashboard() {
          <div style={{ display: "flex", gap: 1, flexShrink: 0 }}>
           {[{ fn: () => handleDuplicate(w), icon: "\u29C9", tip: t("Duplica"), hBg: `${C.accent}12`, hC: C.accent },
             { fn: () => openEdit(w), icon: "\u2699", tip: t("Configura"), hBg: `${C.accent}12`, hC: C.accent },
-            { fn: () => handleRemove(w.id), icon: "\u2715", tip: t("Rimuovi"), hBg: "#fef2f2", hC: C.danger }
+            { fn: () => handleRemove(w.id), icon: "✕", tip: t("Rimuovi"), hBg: "#fef2f2", hC: C.danger }
           ].map((btn, bi) => (
            <button key={bi} onClick={btn.fn} title={btn.tip} style={{ width: 30, height: 30, borderRadius: 7, border: "none", background: "transparent", color: C.textMuted, cursor: "pointer", fontSize: 13, display: "flex", alignItems: "center", justifyContent: "center", transition: "all 0.15s" }}
             onMouseEnter={e => { e.currentTarget.style.background = btn.hBg; e.currentTarget.style.color = btn.hC; }}
@@ -7869,7 +7869,7 @@ function CustomDashboard() {
       <button onClick={() => { setShowAdd(false); setEditId(null); }} style={{ position: "absolute", top: 16, right: 18, background: "none", border: "none", fontSize: 16, color: C.textMuted, cursor: "pointer", width: 28, height: 28, borderRadius: 6, display: "flex", alignItems: "center", justifyContent: "center" }}
        onMouseEnter={e => e.currentTarget.style.background = `${C.accent}12`}
        onMouseLeave={e => e.currentTarget.style.background = "none"}
-      >{"\u2715"}</button>
+      >{"✕"}</button>
 
       <div style={{ fontSize: 19, fontWeight: 800, color: C.text, marginBottom: 3 }}>{editId ? t("Configura") + " Widget" : t("Aggiungi Widget")}</div>
       <div style={{ fontSize: 12, color: C.textDim, marginBottom: 22 }}>{t("Personalizza la tua vista. Aggiungi grafici, KPI e tabelle dalle tue utility.")}</div>
@@ -8192,7 +8192,7 @@ function LoginPage({ onLogin, lang, setLang }) {
          <button onClick={() => setShowForgotPw(false)} style={{
           position: "absolute", top: 12, right: 14, background: "none", border: "none",
           fontSize: 18, color: "#9a8fad", cursor: "pointer",
-         }}>{"\u2715"}</button>
+         }}>{"✕"}</button>
 
          {!resetSent ? (
           <div>
@@ -8494,17 +8494,17 @@ function App() {
       <span style={{ fontSize: 15, fontWeight: 800, color: C.text }}>Notifiche</span>
       <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
        {unreadCount > 0 && <button onClick={markAllRead} style={{ padding: "3px 10px", borderRadius: 6, border: "none", background: `${C.accent}10`, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Segna tutte lette</button>}
-       <button onClick={() => setShowNotif(false)} style={{ border: "none", background: "transparent", color: C.textDim, fontSize: 16, cursor: "pointer", padding: 2 }}>{"\u2715"}</button>
+       <button onClick={() => setShowNotif(false)} style={{ border: "none", background: "transparent", color: C.textDim, fontSize: 16, cursor: "pointer", padding: 2 }}>{"✕"}</button>
       </div>
      </div>
      <div style={{ display: "flex", gap: 2, overflowX: "auto" }}>
       {[
        { key: "all", label: "Tutte" },
        { key: "consumi", label: "Consumi", icon: "\u26a1" },
-       { key: "fatture", label: "Fatture", icon: "\ud83d\udce8" },
-       { key: "ticket", label: "Ticket", icon: "\ud83d\udcac" },
-       { key: "contratti", label: "Contratti", icon: "\ud83d\udcc4" },
-       { key: "budget", label: "Budget", icon: "\ud83d\udcca" },
+       { key: "fatture", label: "Fatture", icon: "📨" },
+       { key: "ticket", label: "Ticket", icon: "💬" },
+       { key: "contratti", label: "Contratti", icon: "📄" },
+       { key: "budget", label: "Budget", icon: "📊" },
       ].map(cat => {
        const c = cat.key === "all" ? unreadCount : NOTIFICATIONS.filter(n => n.cat === cat.key && !n.read && !readNotifs.includes(n.id)).length;
        return (
@@ -8514,7 +8514,7 @@ function App() {
          background: notifCat === cat.key ? C.accent : "transparent",
          color: notifCat === cat.key ? "#fff" : C.textDim, transition: "all 0.12s",
         }}>
-         {cat.icon || "\ud83d\udd14"} {cat.label}
+         {cat.icon || "🔔"} {cat.label}
          {c > 0 && <span style={{ marginLeft: 3, padding: "0 5px", borderRadius: 8, fontSize: 9, fontWeight: 700, background: notifCat === cat.key ? "rgba(255,255,255,0.3)" : `${C.danger}15`, color: notifCat === cat.key ? "#fff" : C.danger }}>{c}</span>}
         </button>
        );
@@ -8563,7 +8563,7 @@ function App() {
 
     {/* Footer */}
     <div style={{ padding: "10px 18px", borderTop: `1px solid ${C.border}`, flexShrink: 0, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-     <span style={{ fontSize: 10, color: C.textDim }}>{NOTIFICATIONS.length} notifiche {"\u00b7"} {unreadCount} non lette</span>
+     <span style={{ fontSize: 10, color: C.textDim }}>{NOTIFICATIONS.length} notifiche {"·"} {unreadCount} non lette</span>
      <button onClick={() => setShowNotif(false)} style={{ padding: "4px 12px", borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg, color: C.textMuted, fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Chiudi</button>
     </div>
    </div>
@@ -8662,3 +8662,4 @@ root.render(React.createElement(App));
   </script>
 </body>
 </html>
+

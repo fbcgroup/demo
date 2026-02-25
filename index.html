@@ -1067,8 +1067,8 @@ function TicketGestioneServizio() {
 
    {/* KPIs — Riga superiore: Riferimenti & Scadenza */}
    <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 14, marginBottom: 14 }}>
-    <KPICard label="Riferimento Operativo" value="Davide Bussini" color={C.energy} sub="Utility Manager dedicato" />
-    <KPICard label="Riferimento Commerciale" value="Marco Galli" color={C.accent} sub="Account Manager" />
+    <KPICard label="Riferimento Operativo" value="Luca Scormito" color={C.energy} sub="Utility Manager dedicato" />
+    <KPICard label="Riferimento Commerciale" value="Davide Bussini" color={C.accent} sub="Account Manager" />
     <KPICard label="Scadenza Contratto" value="31/03/2027" color={C.warn} sub="Rinnovo tacito 12 mesi" />
    </div>
    {/* KPIs — Riga inferiore: Valore, Ticket, Ore */}
@@ -1188,7 +1188,7 @@ function TicketGestioneServizio() {
      { id: "TKT-2025-0015", contract: "CTR-EN-2023-002", utility: "energia", days: 1 },
     ];
     return (
-     <DataTable
+     <DataTable exportFilename="ticket_gestione"
       columns={[
        { key: "id", label: "Ticket", render: v => <span style={{ fontFamily: "monospace", fontWeight: 600 }}>{v}</span> },
        { key: "contract", label: "Contratto di Riferimento", render: v => <span style={{ fontFamily: "monospace", fontSize: 11 }}>{v}</span> },
@@ -2545,6 +2545,52 @@ function OverviewDashboard() {
  <KPICard label="Acqua" value={fmtEuro(totalWater, 0)} color={C.water} sub={`${fmt(totalWater/grandTotal*100, 1)}%`} />
  </div>
 
+ {/* Compact Map - geographic distribution */}
+ <div style={{
+  background: C.card, borderRadius: 14, border: `1px solid ${C.border}`,
+  overflow: "hidden", marginBottom: 20, position: "relative",
+ }}>
+  <div style={{ padding: "14px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+    <span style={{ fontSize: 15 }}>{"🗺"}</span>
+    <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Mappa Siti</span>
+    <span style={{ fontSize: 10, color: C.textDim }}>{"\u2014"} distribuzione geografica</span>
+   </div>
+   <button onClick={() => goToSiti("siti")} style={{
+    padding: "5px 14px", borderRadius: 8, border: `1px solid ${C.accent}33`,
+    background: `${C.accent}11`, color: C.accentLight, fontSize: 11, fontWeight: 600,
+    cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
+   }}
+   onMouseEnter={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#fff"; }}
+   onMouseLeave={e => { e.currentTarget.style.background = `${C.accent}11`; e.currentTarget.style.color = C.accentLight; }}
+   >Apri Real Estate {"\u2192"}</button>
+  </div>
+  <div style={{ padding: "0 10px 10px" }}>
+   <InteractiveMap buildings={(() => {
+    const filtered = isAll ? BUILDINGS : BUILDINGS.filter(b => b.company === co);
+    return filtered.map(bld => {
+     const eCost = energyData.filter(d => bld.devices.pods.includes(d.pod)).reduce((s, d) => s + d.totaleFattura, 0);
+     const gCost = gasData.filter(d => bld.devices.pdrs.includes(d.pdr)).reduce((s, d) => s + d.totaleFattura, 0);
+     const wData = WATER_BUILDING_COSTS.find(w => w.buildingId === bld.id);
+     const wCost = wData ? wData.costo : 0;
+     return { ...bld, eCost, gCost, wCost, totalCost: eCost + gCost + wCost };
+    });
+   })()} compact={true} height={220} onCompactClick={() => goToSiti("siti")} />
+  </div>
+  <div style={{ padding: "6px 18px 10px", borderTop: `1px solid ${C.border}`, display: "flex", gap: 14, flexWrap: "wrap" }}>
+   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
+    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.energy, display: "inline-block" }} /> Energia
+   </span>
+   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
+    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.gas, display: "inline-block" }} /> Gas
+   </span>
+   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
+    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.water, display: "inline-block" }} /> Acqua
+   </span>
+   <span style={{ fontSize: 10, color: C.textDim, marginLeft: "auto" }}>Dimensione = costo relativo</span>
+  </div>
+ </div>
+
  <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginBottom: 20 }}>
  <ChartCard title=" Trend Spesa Mensile per Utility">
  <ResponsiveContainer width="100%" height={300}>
@@ -2590,52 +2636,6 @@ function OverviewDashboard() {
  <KPICard label="Costo Medio/Sito" value={buildingStats.count > 0 ? fmtEuro(buildingStats.totalCost / buildingStats.count, 0) : "—"} color="#7c3aed" sub="/anno" />
  <KPICard label="Sito più Costoso" value={buildingStats.costliest ? fmtEuro(buildingStats.costliest.totalCost, 0) : "—"} color={C.warn} sub={buildingStats.costliest?.name?.split(" - ")[0] || ""} />
  </div>
- </div>
-
- {/* Compact Map - geographic distribution */}
- <div style={{
-  background: C.card, borderRadius: 14, border: `1px solid ${C.border}`,
-  overflow: "hidden", marginBottom: 20, position: "relative",
- }}>
-  <div style={{ padding: "14px 18px 8px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-    <span style={{ fontSize: 15 }}>{"🗺"}</span>
-    <span style={{ fontSize: 13, fontWeight: 700, color: C.text }}>Mappa Siti</span>
-    <span style={{ fontSize: 10, color: C.textDim }}>{"\u2014"} distribuzione geografica</span>
-   </div>
-   <button onClick={() => goToSiti("siti")} style={{
-    padding: "5px 14px", borderRadius: 8, border: `1px solid ${C.accent}33`,
-    background: `${C.accent}11`, color: C.accentLight, fontSize: 11, fontWeight: 600,
-    cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s",
-   }}
-   onMouseEnter={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#fff"; }}
-   onMouseLeave={e => { e.currentTarget.style.background = `${C.accent}11`; e.currentTarget.style.color = C.accentLight; }}
-   >Apri Real Estate {"\u2192"}</button>
-  </div>
-  <div style={{ padding: "0 10px 10px" }}>
-   <InteractiveMap buildings={(() => {
-    const filtered = isAll ? BUILDINGS : BUILDINGS.filter(b => b.company === co);
-    return filtered.map(bld => {
-     const eCost = energyData.filter(d => bld.devices.pods.includes(d.pod)).reduce((s, d) => s + d.totaleFattura, 0);
-     const gCost = gasData.filter(d => bld.devices.pdrs.includes(d.pdr)).reduce((s, d) => s + d.totaleFattura, 0);
-     const wData = WATER_BUILDING_COSTS.find(w => w.buildingId === bld.id);
-     const wCost = wData ? wData.costo : 0;
-     return { ...bld, eCost, gCost, wCost, totalCost: eCost + gCost + wCost };
-    });
-   })()} compact={true} height={220} onCompactClick={() => goToSiti("siti")} />
-  </div>
-  <div style={{ padding: "6px 18px 10px", borderTop: `1px solid ${C.border}`, display: "flex", gap: 14, flexWrap: "wrap" }}>
-   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
-    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.energy, display: "inline-block" }} /> Energia
-   </span>
-   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
-    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.gas, display: "inline-block" }} /> Gas
-   </span>
-   <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
-    <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.water, display: "inline-block" }} /> Acqua
-   </span>
-   <span style={{ fontSize: 10, color: C.textDim, marginLeft: "auto" }}>Dimensione = costo relativo</span>
-  </div>
  </div>
 
  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -3094,7 +3094,7 @@ function EnergyPODAnalysis() {
  </ChartCard>
 
  <SectionTitle>Storico Fatture</SectionTitle>
- <DataTable
+ <DataTable exportFilename="energia_pod"
  columns={[
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
  { key: "meseEmissione", label: "Mese Emiss.", render: v => MONTHS[v] },
@@ -3187,7 +3187,7 @@ function EnergyPODAnalysis() {
  </div>
 
  {/* POD TABLE */}
- <DataTable
+ <DataTable exportFilename="energia_pod_tabella"
  columns={[
  { key: "id", label: "POD", render: (v) => (
  <span onClick={() => setSelectedPod(v)} style={{ fontFamily: "monospace", fontSize: 12, color: C.accentLight, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted" }}>{v}</span>
@@ -3437,7 +3437,7 @@ function EnergyAccounting() {
  </ChartCard>
 
  <SectionTitle>Dettaglio Fatture</SectionTitle>
- <FilteredTable
+ <FilteredTable exportFilename="energia_contabilita"
  data={ED}
  filters={[
  { key: "pod", label: "Tutti i POD", accessor: d => d.pod },
@@ -3560,7 +3560,7 @@ function EnergyConsumption() {
  <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Dettaglio Componenti di Costo</div>
  <div style={{ fontSize: 11, color: C.textDim, marginTop: 2 }}>Periodo selezionato — {ED.length} fatture analizzate</div>
  </div>
- <DataTable
+ <DataTable exportFilename="energia_consumi"
  columns={[
  { key: "name", label: "Componente", render: (v, row) => <span style={{ borderLeft: `4px solid ${row.color}`, paddingLeft: 10, fontWeight: 600 }}>{v}</span> },
  { key: "eurKwh", label: "€/kWh", align: "right", render: v => <span style={{ fontFamily: "monospace" }}>€{v}</span> },
@@ -3574,7 +3574,7 @@ function EnergyConsumption() {
  </div>
 
  <SectionTitle>Dettaglio Consumi per Competenza</SectionTitle>
- <FilteredTable
+ <FilteredTable exportFilename="energia_consumi"
  data={ED}
  filters={[
  { key: "pod", label: "Tutti i POD", accessor: d => d.pod },
@@ -3749,7 +3749,7 @@ function GasPDRAnalysis() {
  </ChartCard>
 
  <SectionTitle>Storico Fatture</SectionTitle>
- <DataTable
+ <DataTable exportFilename="gas_pdr"
  columns={[
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
  { key: "meseEmissione", label: "Mese Emiss.", render: v => MONTHS[v] },
@@ -3827,7 +3827,7 @@ function GasPDRAnalysis() {
  </div>
 
  {/* PDR TABLE */}
- <DataTable
+ <DataTable exportFilename="gas_pdr_tabella"
  columns={[
  { key: "id", label: "PDR", render: (v) => (
  <span onClick={() => setSelectedPdr(v)} style={{ fontFamily: "monospace", fontSize: 12, color: C.accentLight, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted" }}>{v}</span>
@@ -3907,7 +3907,7 @@ function GasContabilita() {
  </ChartCard>
 
  <SectionTitle>Dettaglio Fatture per Emissione</SectionTitle>
- <FilteredTable
+ <FilteredTable exportFilename="gas_contabilita"
  data={GD}
  filters={[
  { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr },
@@ -4000,7 +4000,7 @@ function GasCompetenza() {
  </div>
 
  <SectionTitle>Dettaglio per Competenza</SectionTitle>
- <FilteredTable
+ <FilteredTable exportFilename="gas_competenza"
  data={GD}
  filters={[
  { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr },
@@ -4689,7 +4689,7 @@ function BudgetOverview() {
 
    {/* Summary table */}
    <SectionTitle sub="Riepilogo annuale per utility">Tabella Riassuntiva</SectionTitle>
-   <DataTable
+   <DataTable exportFilename="budget_dettaglio"
     columns={[
      { key: "label", label: "Utility", render: (v, row) => <span style={{ fontWeight: 600, color: row.meta.color }}>{v}</span> },
      { key: "totBudget", label: "Budget €", align: "right", render: v => fmtEuro(v, 0) },
@@ -5196,7 +5196,7 @@ function ScenarioBuilder({ onSave }) {
 
    {/* Detail table */}
    <SectionTitle sub="Dettaglio calcoli scenario per mese">Tabella Scenario Dettagliata</SectionTitle>
-   <DataTable
+   <DataTable exportFilename="scenario_dettaglio"
     columns={[
      { key: "name", label: "Mese 2026" },
      { key: "consumo", label: `Consumi (${unit})`, align: "right", render: v => fmt(v) },
@@ -5571,7 +5571,7 @@ function ForecastUtilityDetail({ utility }) {
 
  {/* Table */}
  <SectionTitle sub="Verde = dato reale 2026, colorato = forecast basato su consumi 2025 × futures 2026">Tabella Dettagliata 2026</SectionTitle>
- <DataTable
+ <DataTable exportFilename="forecast_utility"
  columns={[
  { key: "name", label: "Mese", render: (v, row) => (
   <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -7012,7 +7012,7 @@ function UtilityManagementPage() {
    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginBottom: 24 }}>
     <KPICard label="Valore Contratti Attivi" value={fmtEuro(totalValue, 0)} color={C.accent} sub={`${activeContracts.length} contratti`} />
     <KPICard label="Prossima Scadenza" value={nearestExpiry ? nearestExpiry.end : "—"} color={C.warn} sub={nearestExpiry ? nearestExpiry.provider : ""} />
-    <KPICard label="Utility Manager" value="Davide Bussini" color={C.energy} sub="Referente dedicato" />
+    <KPICard label="Utility Manager" value="Luca Scormito" color={C.energy} sub="Referente dedicato" />
     <KPICard label="Ticket Gestiti" value={ticketsResolved} color={C.success} sub={`${ticketsOpen} in lavorazione`} />
     <KPICard label="Ore Risparmiate" value={`${fmt(hoursSaved, 0)} h`} color={C.energyLight} sub="Stima da automazione" />
    </div>
@@ -7044,7 +7044,7 @@ function UtilityManagementPage() {
 
    {/* Contratti attivi */}
    <SectionTitle sub="Elenco contratti attivi con fornitore, utility e scadenza">Contratti in Essere</SectionTitle>
-   <DataTable
+   <DataTable exportFilename="sito_fatture"
     columns={[
      { key: "id", label: "ID Contratto" },
      { key: "utility", label: "Utility", render: v => <Badge color={v === "energia" ? C.energy : v === "gas" ? C.gas : C.water}>{v.charAt(0).toUpperCase() + v.slice(1)}</Badge> },

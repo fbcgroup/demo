@@ -1243,9 +1243,9 @@ function TicketGestioneServizio() {
    <DataTable exportFilename="ticket_gestione"
     columns={[
      { key: "id", label: "Ticket", render: (v, row) => (
-      <span onClick={(e) => { e.stopPropagation(); setSelectedTicket(row); }} style={{ fontFamily: "monospace", fontWeight: 700, color: C.accentLight, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{v}</span>
+      <span onClick={(e) => { e.stopPropagation(); setSelectedTicket(row); }} style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 12, color: C.accentLight, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{v}</span>
      )},
-     { key: "subject", label: "Oggetto" },
+     { key: "subject", label: "Oggetto", render: v => <span style={{ fontWeight: 600, fontSize: 12 }}>{v}</span> },
      { key: "categoria", label: "Categoria", render: v => {
       const catColors = { "Energia": C.energy, "Gas": C.gas, "Servizio Idrico": "#0ea5e9", "Telefonia Fissa": "#8b5cf6", "Telefonia Mobile": "#a855f7" };
       return <Badge color={catColors[v] || C.textDim}>{v}</Badge>;
@@ -1254,12 +1254,11 @@ function TicketGestioneServizio() {
      { key: "dettaglioRichiesta", label: "Dettaglio Richiesta", render: v => <span style={{ fontSize: 11, color: C.textMuted }}>{v}</span> },
      { key: "priority", label: "Priorit\u00e0", render: v => <Badge color={v === "alta" ? C.danger : v === "media" ? C.warn : C.textDim}>{v.charAt(0).toUpperCase() + v.slice(1)}</Badge> },
      { key: "status", label: "Stato", render: v => <Badge color={v === "Risolto" ? C.success : v === "In lavorazione" ? C.warn : C.danger}>{v}</Badge> },
-     { key: "assignee", label: "Assegnato a" },
-     { key: "openDate", label: "Data" },
-     { key: "days", label: "GG", align: "right", render: v => <span style={{ fontWeight: 600, color: v > 20 ? C.danger : v > 7 ? C.warn : C.text }}>{v}</span> },
+     { key: "assignee", label: "Assegnato a", render: v => <span style={{ fontSize: 11, fontWeight: 500 }}>{v}</span> },
+     { key: "openDate", label: "Data Apertura" },
+     { key: "days", label: "GG", align: "right", render: v => <span style={{ fontWeight: 700, fontSize: 13, color: v > 20 ? C.danger : v > 7 ? C.warn : C.success }}>{v}</span> },
     ]}
     data={DEMO_TICKETS}
-    maxHeight={420}
    />
 
    {/* Ticket Detail Modal */}
@@ -1488,9 +1487,10 @@ function TicketCenter() {
  const [newTicket, setNewTicket] = useState({ category: "", priority: "media", subject: "", device: "", deviceType: "", deviceManual: "", company: "reale_immobili", notes: "" });
  const [filterStatus, setFilterStatus] = useState("all");
  const [activeTab, setActiveTab] = useState("gestione");
+ const [selectedTicket, setSelectedTicket] = useState(null);
 
- const filteredTickets = filterStatus === "all" ? tickets : tickets.filter(tk => tk.status === filterStatus);
- const statusCounts = { Aperto: tickets.filter(tk => tk.status === "Aperto").length, "In lavorazione": tickets.filter(tk => tk.status === "In lavorazione").length, Risolto: tickets.filter(tk => tk.status === "Risolto").length };
+ const filteredTickets = filterStatus === "all" ? DEMO_TICKETS : DEMO_TICKETS.filter(tk => tk.status === filterStatus);
+ const statusCounts = { Aperto: DEMO_TICKETS.filter(tk => tk.status === "Aperto").length, "In lavorazione": DEMO_TICKETS.filter(tk => tk.status === "In lavorazione").length, Risolto: DEMO_TICKETS.filter(tk => tk.status === "Risolto").length };
 
  const handleSubmit = () => {
  if (!newTicket.category || !newTicket.subject) return;
@@ -1539,7 +1539,7 @@ function TicketCenter() {
  <KPICard label="Ticket Aperti" value={statusCounts.Aperto} color={C.danger} />
  <KPICard label="In Lavorazione" value={statusCounts["In lavorazione"]} color={C.warn} />
  <KPICard label="Risolti" value={statusCounts.Risolto} color={C.success} />
- <KPICard label="Totale" value={tickets.length} color={C.accent} />
+ <KPICard label="Totale" value={DEMO_TICKETS.length} color={C.accent} />
  </div>
 
  <div style={{ display: "flex", gap: 4, marginBottom: 16 }}>
@@ -1552,35 +1552,92 @@ function TicketCenter() {
  ))}
  </div>
 
- <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
- {filteredTickets.map(tk => {
- const cat = TICKET_CATEGORIES.find(c => c.key === tk.category);
- const pri = TICKET_PRIORITIES.find(p => p.key === tk.priority);
- const co = COMPANIES.find(c => c.id === tk.company);
- const statusColor = tk.status === "Aperto" ? C.danger : tk.status === "In lavorazione" ? C.warn : C.success;
- return (
- <div key={tk.id} style={{ background: C.card, borderRadius: 8, padding: "14px 18px", border: `1px solid ${C.border}`, borderLeft: `4px solid ${statusColor}`, boxShadow: "0 1px 4px rgba(45,27,78,0.06)" }}>
- <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
- <div style={{ flex: 1 }}>
- <div style={{ display: "flex", gap: 6, alignItems: "center", marginBottom: 4 }}>
- <span style={{ fontSize: 11, fontWeight: 700, color: C.textDim, fontFamily: "monospace" }}>{tk.id}</span>
- <Badge color={statusColor}>{tk.status}</Badge>
- {pri && <Badge color={pri.color}>{pri.label}</Badge>}
- {co && <Badge color={co.color}>{co.short}</Badge>}
- </div>
- <div style={{ fontSize: 13, fontWeight: 700, color: C.text }}>{tk.subject}</div>
- </div>
- <div style={{ fontSize: 11, color: C.textDim, whiteSpace: "nowrap" }}>{tk.created}</div>
- </div>
- <div style={{ display: "flex", gap: 16, marginTop: 8, fontSize: 11, color: C.textDim }}>
- {tk.device && <span>Dispositivo: <strong style={{ color: C.text }}>{tk.device}</strong></span>}
- <span>Assegnato a: <strong style={{ color: C.text }}>{tk.assignedTo}</strong></span>
- </div>
- {tk.notes && <div style={{ marginTop: 6, fontSize: 11, color: C.textMuted, background: C.bg, padding: "6px 10px", borderRadius: 4 }}>{tk.notes}</div>}
- </div>
- );
- })}
- </div>
+ <DataTable exportFilename="ticket_assistenza"
+    columns={[
+     { key: "id", label: "Ticket", render: (v, row) => (
+      <span onClick={(e) => { e.stopPropagation(); setSelectedTicket(row); }} style={{ fontFamily: "monospace", fontWeight: 700, fontSize: 12, color: C.accentLight, cursor: "pointer", textDecoration: "underline", textDecorationStyle: "dotted", textUnderlineOffset: 2 }}>{v}</span>
+     )},
+     { key: "subject", label: "Oggetto", render: v => <span style={{ fontWeight: 600, fontSize: 12 }}>{v}</span> },
+     { key: "categoria", label: "Categoria", render: v => {
+      const catColors = { "Energia": C.energy, "Gas": C.gas, "Servizio Idrico": "#0ea5e9", "Telefonia Fissa": "#8b5cf6", "Telefonia Mobile": "#a855f7" };
+      return <Badge color={catColors[v] || C.textDim}>{v}</Badge>;
+     }},
+     { key: "macroRichiesta", label: "Macro Richiesta", render: v => <span style={{ fontSize: 11, fontWeight: 600, color: C.text }}>{v}</span> },
+     { key: "priority", label: "Priorit\u00e0", render: v => <Badge color={v === "alta" ? C.danger : v === "media" ? C.warn : C.textDim}>{v.charAt(0).toUpperCase() + v.slice(1)}</Badge> },
+     { key: "status", label: "Stato", render: v => <Badge color={v === "Risolto" ? C.success : v === "In lavorazione" ? C.warn : C.danger}>{v}</Badge> },
+     { key: "assignee", label: "Assegnato a", render: v => <span style={{ fontSize: 11, fontWeight: 500 }}>{v}</span> },
+     { key: "openDate", label: "Data" },
+     { key: "days", label: "GG", align: "right", render: v => <span style={{ fontWeight: 700, fontSize: 13, color: v > 20 ? C.danger : v > 7 ? C.warn : C.success }}>{v}</span> },
+    ]}
+    data={filteredTickets}
+   />
+
+   {/* Ticket Detail Modal */}
+   {selectedTicket && (
+    <div onClick={() => setSelectedTicket(null)} style={{ position: "fixed", inset: 0, background: "rgba(10,5,20,0.55)", backdropFilter: "blur(6px)", zIndex: 9999, display: "flex", alignItems: "center", justifyContent: "center" }}>
+     <div onClick={e => e.stopPropagation()} style={{ background: C.card, borderRadius: 14, width: 640, maxHeight: "85vh", display: "flex", flexDirection: "column", overflow: "hidden", boxShadow: "0 20px 60px rgba(0,0,0,0.3)" }}>
+      <div style={{ background: `linear-gradient(135deg, ${selectedTicket.status === "Risolto" ? C.success : selectedTicket.status === "Aperto" ? C.danger : C.warn}, ${selectedTicket.utility === "energia" ? C.energy : selectedTicket.utility === "gas" ? C.gas : "#0ea5e9"})`, padding: "20px 24px", color: "#fff", flexShrink: 0, position: "relative" }}>
+       <button onClick={() => setSelectedTicket(null)} style={{ position: "absolute", top: 14, right: 16, background: "rgba(255,255,255,0.2)", border: "none", color: "#fff", width: 28, height: 28, borderRadius: 8, cursor: "pointer", fontSize: 14, display: "flex", alignItems: "center", justifyContent: "center", backdropFilter: "blur(4px)" }}>{"\u2715"}</button>
+       <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+        <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(255,255,255,0.2)", fontWeight: 700 }}>{selectedTicket.status}</span>
+        <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(255,255,255,0.15)", fontWeight: 600 }}>{selectedTicket.utility === "energia" ? "\u26a1 Energia" : selectedTicket.utility === "gas" ? "\ud83d\udd25 Gas" : "\ud83d\udca7 Acqua"}</span>
+        <span style={{ fontSize: 11, padding: "3px 10px", borderRadius: 6, background: "rgba(255,255,255,0.15)", fontWeight: 600 }}>Priorit\u00e0: {selectedTicket.priority}</span>
+       </div>
+       <div style={{ fontSize: 18, fontWeight: 800, marginTop: 10, fontFamily: "monospace" }}>{selectedTicket.id}</div>
+       <div style={{ fontSize: 13, opacity: 0.9, marginTop: 2 }}>{selectedTicket.subject}</div>
+      </div>
+      <div style={{ padding: 24, overflowY: "auto", flex: 1 }}>
+       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 12, marginBottom: 20 }}>
+        {[
+         { label: "Categoria", value: selectedTicket.categoria },
+         { label: "Macro Richiesta", value: selectedTicket.macroRichiesta },
+         { label: "Dettaglio Richiesta", value: selectedTicket.dettaglioRichiesta },
+         { label: "Assegnato a", value: selectedTicket.assignee },
+         { label: "Sito", value: selectedTicket.site },
+         { label: "Contratto", value: selectedTicket.contract },
+         { label: "Aperto il", value: selectedTicket.openDate },
+         { label: "Chiuso il", value: selectedTicket.closeDate || "—" },
+         { label: "Durata", value: `${selectedTicket.days} giorni` },
+        ].map((f, i) => (
+         <div key={i} style={{ background: C.bg, borderRadius: 8, padding: "10px 12px" }}>
+          <div style={{ fontSize: 10, color: C.textDim, fontWeight: 600, textTransform: "uppercase", marginBottom: 2 }}>{f.label}</div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{f.value}</div>
+         </div>
+        ))}
+       </div>
+       {selectedTicket.description && (
+        <div style={{ background: `${C.accent}08`, border: `1px solid ${C.accent}22`, borderRadius: 8, padding: 14, marginBottom: 16, fontSize: 12, lineHeight: 1.6, color: C.text }}>{selectedTicket.description}</div>
+       )}
+       {selectedTicket.messages && selectedTicket.messages.length > 0 && (
+        <div>
+         <div style={{ fontSize: 13, fontWeight: 700, color: C.text, marginBottom: 10 }}>Cronologia</div>
+         <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+          {selectedTicket.messages.map((m, i) => {
+           const isClient = m.author.startsWith("Cliente");
+           const isSys = m.author.startsWith("Sistema");
+           return (
+            <div key={i} style={{ display: "flex", justifyContent: isClient ? "flex-end" : "flex-start" }}>
+             <div style={{ maxWidth: "80%", background: isClient ? `${C.accent}15` : isSys ? "#fef3c722" : `${C.success}15`, borderRadius: 10, padding: "10px 14px", border: `1px solid ${isClient ? `${C.accent}30` : isSys ? "#fef3c755" : `${C.success}30`}` }}>
+              <div style={{ display: "flex", justifyContent: "space-between", gap: 12, marginBottom: 4 }}>
+               <span style={{ fontSize: 10, fontWeight: 700, color: isClient ? C.accent : isSys ? C.warn : C.success }}>{m.author}</span>
+               <span style={{ fontSize: 10, color: C.textDim }}>{m.date}</span>
+              </div>
+              <div style={{ fontSize: 12, color: C.text, lineHeight: 1.5 }}>{m.text}</div>
+             </div>
+            </div>
+           );
+          })}
+         </div>
+        </div>
+       )}
+      </div>
+      <div style={{ padding: "12px 24px", borderTop: `1px solid ${C.border}`, display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+       <span style={{ fontSize: 11, color: C.textDim }}>{selectedTicket.messages ? selectedTicket.messages.length : 0} messaggi</span>
+       <button onClick={() => setSelectedTicket(null)} style={{ padding: "8px 20px", borderRadius: 6, border: "none", background: C.accent, color: "#fff", fontSize: 12, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>Chiudi</button>
+      </div>
+     </div>
+    </div>
+   )}
 
  </>}
 
@@ -4414,14 +4471,14 @@ function DeviceRegistry() {
    { key: "lastCost", label: "Costo \u20ac", align: "right", render: v => fmtEuro(v) },
    { key: "_actions", label: "Azioni", sortable: false, render: (v, row) => editingId === row.identifier ? (
     <div style={{ display: "flex", gap: 4 }}>
-     <button onClick={e => { e.stopPropagation(); saveEdit(); }} style={{ padding: "4px 10px", borderRadius: 6, border: "none", background: C.success, color: "#fff", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>\u2713 Salva</button>
-     <button onClick={e => { e.stopPropagation(); cancelEdit(); }} style={{ padding: "4px 8px", borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg, color: C.textDim, fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>\u2715</button>
+     <button onClick={e => { e.stopPropagation(); saveEdit(); }} style={{ padding: "4px 10px", borderRadius: 6, border: "none", background: C.success, color: "#fff", fontSize: 10, fontWeight: 700, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s" }}>{"✓"} Salva</button>
+     <button onClick={e => { e.stopPropagation(); cancelEdit(); }} style={{ padding: "4px 8px", borderRadius: 6, border: `1px solid ${C.border}`, background: C.bg, color: C.textDim, fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit" }}>{"✕"}</button>
     </div>
    ) : (
     <button onClick={e => { e.stopPropagation(); startEdit(row); }} style={{ padding: "4px 10px", borderRadius: 6, border: `1px solid ${C.border}`, background: C.card, color: C.accent, fontSize: 10, fontWeight: 600, cursor: "pointer", fontFamily: "inherit", transition: "all 0.15s", whiteSpace: "nowrap" }}
     onMouseEnter={e => { e.currentTarget.style.background = C.accent; e.currentTarget.style.color = "#fff"; }}
     onMouseLeave={e => { e.currentTarget.style.background = C.card; e.currentTarget.style.color = C.accent; }}
-    >\u270e Modifica</button>
+    >{"✎"} Modifica</button>
    )},
   ]}
   data={filtered}
@@ -8319,22 +8376,22 @@ function LoginPage({ onLogin, lang, setLang }) {
 
    {/* LEFT PANEL — Branding */}
    <div style={{
-    flex: "0 0 45%", background: "linear-gradient(160deg, #1e0a3c 0%, #3d2066 50%, #6d28d9 100%)",
+    flex: "0 0 45%", background: "linear-gradient(160deg, #f0ecf5 0%, #e8e0f0 50%, #ddd5ea 100%)",
     display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center",
     padding: 60, position: "relative", overflow: "hidden",
    }}>
     <div style={{
      position: "absolute", top: -100, right: -100, width: 400, height: 400,
-     background: "radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%)",
+     background: "radial-gradient(circle, rgba(109,40,217,0.08) 0%, transparent 70%)",
      borderRadius: "50%",
     }}/>
     <div style={{
      position: "absolute", bottom: -80, left: -80, width: 300, height: 300,
-     background: "radial-gradient(circle, rgba(16,185,129,0.1) 0%, transparent 70%)",
+     background: "radial-gradient(circle, rgba(109,40,217,0.06) 0%, transparent 70%)",
      borderRadius: "50%",
     }}/>
-    <img src={NOSTROMO_LOGO} alt="Nostromo" style={{ height: 100, filter: "brightness(0) invert(1)", marginBottom: 32, position: "relative", zIndex: 1 }} />
-    <div style={{ color: "rgba(255,255,255,0.7)", fontSize: 15, fontWeight: 300, textAlign: "center", maxWidth: 320, lineHeight: 1.7, position: "relative", zIndex: 1 }}>
+    <img src={NOSTROMO_LOGO} alt="Nostromo" style={{ height: 100, marginBottom: 32, position: "relative", zIndex: 1 }} />
+    <div style={{ color: "rgba(60,30,90,0.7)", fontSize: 15, fontWeight: 300, textAlign: "center", maxWidth: 320, lineHeight: 1.7, position: "relative", zIndex: 1 }}>
      Piattaforma di gestione e ottimizzazione delle utility aziendali
     </div>
     <div style={{
@@ -8342,12 +8399,11 @@ function LoginPage({ onLogin, lang, setLang }) {
     }}>
      {[
       { n: "400+", l: "Aziende" },
-      { n: "€2.5M", l: "Saving annuo" },
       { n: "24/7", l: "Monitoraggio" },
      ].map((s, i) => (
       <div key={i} style={{ textAlign: "center" }}>
-       <div style={{ color: "#fff", fontSize: 22, fontWeight: 700 }}>{s.n}</div>
-       <div style={{ color: "rgba(255,255,255,0.5)", fontSize: 11, marginTop: 2 }}>{s.l}</div>
+       <div style={{ color: "#3d2066", fontSize: 22, fontWeight: 700 }}>{s.n}</div>
+       <div style={{ color: "rgba(60,30,90,0.5)", fontSize: 11, marginTop: 2 }}>{s.l}</div>
       </div>
      ))}
     </div>

@@ -1177,20 +1177,92 @@ function TicketGestioneServizio() {
  const [selectedTicket, setSelectedTicket] = useState(null);
 
 
- const services = [
-  { name: "Gestione Fatture", desc: "Ricezione, verifica e contabilizzazione", active: true },
-  { name: "Ottimizzazione Tariffe", desc: "Analisi e rinegoziazione condizioni", active: true },
-  { name: "Monitoraggio Consumi", desc: "Tracking real-time e alerting", active: true },
-  { name: "Reporting Periodico", desc: "Report mensili e trimestrali", active: true },
-  { name: "Supporto Contrattuale", desc: "Rinnovi, switch e gare", active: true },
-  { name: "Gestione Conguagli", desc: "Verifica e contestazione conguagli", active: true },
-  { name: "Budget & Forecasting", desc: "Pianificazione costi e previsioni", active: true },
-  { name: "Ticketing Dedicato", desc: "Assistenza prioritaria via ticket", active: true },
-  { name: "Audit Energetico", desc: "Analisi efficienza e sprechi", active: false },
-  { name: "Carbon Footprint", desc: "Calcolo e reporting emissioni CO₂", active: false },
-  { name: "Demand Response", desc: "Partecipazione mercato flessibilità", active: false },
-  { name: "Certificati Verdi (GO)", desc: "Acquisto garanzie di origine", active: false },
+ // ── Servizi per famiglia ──
+ const [serviceFamily, setServiceFamily] = useState("energia");
+
+ const serviceFamilies = [
+  { key: "energia", label: "Energia Elettrica", icon: "⚡", color: C.energy, colorLight: "#fef3c7" },
+  { key: "gas", label: "Gas Naturale", icon: "🔥", color: "#6366f1", colorLight: "#ede9fe" },
+  { key: "acqua", label: "Acqua", icon: "💧", color: "#0ea5e9", colorLight: "#e0f2fe" },
  ];
+
+ const energiaGasServices = {
+  standard: [
+   { name: "Portale Nostromo", active: true },
+   { name: "Assistenza Operativa Standard (Ticketing & Caring)", active: true },
+   { name: "Supporto Gestione Contratti Attivi", active: true },
+   { name: "Monitoraggio Costi / Consumi", active: true },
+   { name: "Gestione Fatture", active: true },
+   { name: "Gestione Conguagli", active: true },
+   { name: "Ottimizzazione Tariffe", active: true },
+   { name: "Reporting Standard Periodico", active: true },
+   { name: "Previsionale di Spesa", active: true },
+   { name: "Prompt AI", active: true },
+   { name: "Audit Energetico", active: true },
+  ],
+  opzionali: [
+   { name: "Modulo PRO Priority Tickets", active: false },
+   { name: "Gestione RFQ", active: false },
+   { name: "Analisi Corretta Fatturazione", active: false },
+   { name: "Reports Custom", active: false },
+  ],
+  sostenibilita: [
+   { name: "Screening ESG", active: false },
+   { name: "Assessment ESG", active: false },
+   { name: "Percorso Strategico", active: false },
+  ],
+ };
+
+ const acquaServices = {
+  standard: [
+   { name: "Portale Nostromo", active: true },
+   { name: "Assistenza Operativa Standard (Ticketing & Caring)", active: true },
+   { name: "Supporto Gestione Contratti Attivi", active: true },
+   { name: "Monitoraggio Costi / Consumi", active: true },
+   { name: "Gestione Fatture", active: true },
+   { name: "Gestione Conguagli", active: true },
+  ],
+ };
+
+ const currentFamilyData = serviceFamily === "acqua" ? acquaServices : energiaGasServices;
+ const currentFamilyMeta = serviceFamilies.find(f => f.key === serviceFamily);
+
+ const serviceCategories = [
+  { key: "standard", label: "Servizi Offerti — Standard", icon: "📋" },
+  { key: "opzionali", label: "Servizi Opzionali", icon: "🔧" },
+  { key: "sostenibilita", label: "Servizi Sostenibilità", icon: "🌱" },
+ ];
+
+ const renderServiceCard = (s, famColor) => (
+  <div key={s.name} style={{
+   display: "flex", alignItems: "center", gap: 12, padding: "12px 16px",
+   borderRadius: 10, border: `1.5px solid ${s.active ? C.success + "55" : famColor + "33"}`,
+   background: s.active ? `${C.success}06` : "#faf8fd",
+   transition: "all 0.2s",
+  }}>
+   <div style={{
+    width: 30, height: 30, borderRadius: 8, flexShrink: 0,
+    background: s.active ? `linear-gradient(135deg, ${C.success}, #059669)` : `${famColor}22`,
+    display: "flex", alignItems: "center", justifyContent: "center",
+    fontSize: 14, color: s.active ? "#fff" : famColor, fontWeight: 700,
+    boxShadow: s.active ? `0 2px 6px ${C.success}44` : "none",
+   }}>{s.active ? "✓" : "+"}</div>
+   <div style={{ flex: 1, minWidth: 0 }}>
+    <div style={{ fontSize: 13, fontWeight: 600, color: C.text }}>{s.name}</div>
+   </div>
+   {s.active ? (
+    <div style={{ fontSize: 9, fontWeight: 700, color: C.success, background: `${C.success}15`, padding: "3px 8px", borderRadius: 4, whiteSpace: "nowrap" }}>ATTIVO</div>
+   ) : (
+    <a href={`mailto:sales.support@fbcitalia.it?subject=Richiesta attivazione servizio: ${encodeURIComponent(s.name)}&body=${encodeURIComponent(`Buongiorno,\n\nvorrei richiedere l'attivazione del servizio "${s.name}" per la nostra azienda.\n\nCordiali saluti`)}`}
+     onClick={e => e.stopPropagation()}
+     style={{
+      fontSize: 10, fontWeight: 700, color: "#fff", background: `linear-gradient(135deg, ${famColor}, ${famColor}cc)`,
+      padding: "5px 12px", borderRadius: 6, whiteSpace: "nowrap", textDecoration: "none",
+      cursor: "pointer", boxShadow: `0 2px 6px ${famColor}33`, transition: "all 0.2s",
+     }}>Attiva Servizio</a>
+   )}
+  </div>
+ );
 
  return (
   <div>
@@ -1209,42 +1281,39 @@ function TicketGestioneServizio() {
     <KPICard label="Ore Risparmiate" value={`${fmt(hoursSaved, 0)} h`} color={C.energyLight} sub="Stima da automazione processi" />
    </div>
 
-   {/* Griglia Servizi Offerti */}
-   <SectionTitle sub="Servizi inclusi nel contratto di Utility Management. I servizi attivi sono evidenziati con spunta verde.">Servizi Offerti</SectionTitle>
-   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(260px, 1fr))", gap: 10, marginBottom: 28 }}>
-    {services.map(s => (
-     <div key={s.name} style={{
-      display: "flex", alignItems: "center", gap: 12, padding: "14px 16px",
-      borderRadius: 10, border: `1.5px solid ${s.active ? C.success + "55" : C.accent + "33"}`,
-      background: s.active ? `${C.success}06` : "#faf8fd",
-      opacity: 1,
-      transition: "all 0.2s",
+   {/* Servizi Offerti — 3 Famiglie */}
+   <SectionTitle sub="Servizi inclusi nel contratto di Utility Management, suddivisi per famiglia. I servizi attivi sono evidenziati con spunta verde.">Servizi Offerti</SectionTitle>
+
+   {/* Tab bar famiglie */}
+   <div style={{ display: "flex", gap: 2, background: "#e9ecf1", borderRadius: 12, padding: 4, border: `1px solid ${C.border}`, marginBottom: 20 }}>
+    {serviceFamilies.map(fam => (
+     <button key={fam.key} onClick={() => setServiceFamily(fam.key)} style={{
+      flex: 1, padding: "10px 16px", borderRadius: 9, border: "none", cursor: "pointer",
+      fontSize: 13, fontWeight: 600, fontFamily: "inherit", transition: "all 0.2s",
+      background: serviceFamily === fam.key ? `linear-gradient(135deg, ${fam.color}, ${fam.color}cc)` : "transparent",
+      color: serviceFamily === fam.key ? "#fff" : C.textMuted,
+      boxShadow: serviceFamily === fam.key ? `0 2px 8px ${fam.color}33` : "none",
+      display: "flex", alignItems: "center", justifyContent: "center", gap: 8,
      }}>
-      <div style={{
-       width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-       background: s.active ? `linear-gradient(135deg, ${C.success}, #059669)` : `${C.accent}22`,
-       display: "flex", alignItems: "center", justifyContent: "center",
-       fontSize: 15, color: s.active ? "#fff" : C.accent, fontWeight: 700,
-       boxShadow: s.active ? `0 2px 6px ${C.success}44` : "none",
-      }}>{s.active ? "✓" : "+"}</div>
-      <div style={{ flex: 1 }}>
-       <div style={{ fontSize: 13, fontWeight: 600, color: s.active ? C.text : C.text }}>{s.name}</div>
-       <div style={{ fontSize: 10, color: C.textDim, lineHeight: 1.4, marginTop: 1 }}>{s.desc}</div>
-      </div>
-      {s.active ? (
-       <div style={{ fontSize: 9, fontWeight: 700, color: C.success, background: `${C.success}15`, padding: "3px 8px", borderRadius: 4, whiteSpace: "nowrap" }}>ATTIVO</div>
-      ) : (
-       <a href={`mailto:sales.support@fbcitalia.it?subject=Richiesta attivazione servizio: ${encodeURIComponent(s.name)}&body=${encodeURIComponent(`Buongiorno,\n\nvorrei richiedere l'attivazione del servizio "${s.name}" per la nostra azienda.\n\nCordiali saluti`)}`}
-        onClick={e => e.stopPropagation()}
-        style={{
-         fontSize: 10, fontWeight: 700, color: "#fff", background: `linear-gradient(135deg, ${C.accent}, #4c1d95)`,
-         padding: "5px 12px", borderRadius: 6, whiteSpace: "nowrap", textDecoration: "none",
-         cursor: "pointer", boxShadow: `0 2px 6px ${C.accent}33`, transition: "all 0.2s",
-        }}>Attiva Servizio</a>
-      )}
-     </div>
+      <span style={{ fontSize: 16 }}>{fam.icon}</span> {fam.label}
+     </button>
     ))}
    </div>
+
+   {/* Categorie di servizi per la famiglia selezionata */}
+   {serviceCategories.filter(cat => currentFamilyData[cat.key]).map(cat => (
+    <div key={cat.key} style={{ marginBottom: 22 }}>
+     <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+      <span style={{ fontSize: 18 }}>{cat.icon}</span>
+      <h3 style={{ margin: 0, fontSize: 14, fontWeight: 700, color: C.text, letterSpacing: -0.2 }}>{cat.label}</h3>
+      <div style={{ flex: 1, height: 1, background: C.border, marginLeft: 8 }}></div>
+      <span style={{ fontSize: 11, color: C.textDim, fontWeight: 500 }}>{currentFamilyData[cat.key].length} servizi</span>
+     </div>
+     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 10 }}>
+      {currentFamilyData[cat.key].map(s => renderServiceCard(s, currentFamilyMeta.color))}
+     </div>
+    </div>
+   ))}
 
    {/* Grafici riepilogo */}
    <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -1632,7 +1701,7 @@ function TicketCenter() {
  {COMPANIES.filter(c => c.id !== "all").map(c => <option key={c.id} value={c.id}>{c.name}</option>)}
  </select>
 
-  <div style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, marginBottom: 6 }}>DISPOSITIVO / PUNTO FORNITURA</div>
+  <div style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, marginBottom: 6 }}>CONTATORE / PUNTO FORNITURA</div>
   <select value={newTicket.device} onChange={e => {
    const val = e.target.value;
    const podMatch = PODS.find(p => p.id === val);
@@ -1700,8 +1769,8 @@ const TR = {
  "Costo Medio": { en: "Avg. Cost" },
  "Costo Totale Annuo": { en: "Annual Total Cost" },
  "Costo Medio Mese": { en: "Monthly Avg. Cost" },
- "Dispositivi": { en: "Devices" },
- "Dispositivi Associati": { en: "Assigned Devices" },
+ "Contatori": { en: "Meters" },
+ "Contatori Associati": { en: "Assigned Meters" },
  "N. Siti": { en: "No. Sites" },
  "Costo Siti": { en: "Sites Cost" },
  "Costo Medio/Sito": { en: "Avg. Cost/Site" },
@@ -1738,7 +1807,7 @@ const TR = {
  "Patrimonio Immobiliare": { en: "Real Estate Portfolio" },
  "Vista per Sito": { en: "Site View" },
  "Panoramica": { en: "Overview" },
- "Gestione Dispositivi": { en: "Device Management" },
+ "Gestione Contatori": { en: "Meter Management" },
  "Elenco Siti": { en: "Site List" },
  "Scadenze Contrattuali": { en: "Contract Deadlines" },
  "Servizi Offerti": { en: "Services Offered" },
@@ -1759,7 +1828,6 @@ const TR = {
  "Ripartizione Costi per Utility": { en: "Cost Breakdown by Utility" },
  "Trend Mensile — Tutte le Utility": { en: "Monthly Trend — All Utilities" },
  "Dettaglio Mensile per Utility (€)": { en: "Monthly Detail by Utility (€)" },
- "Costo Annuo per Sito": { en: "Annual Cost by Site" },
  "Ticket per Stato": { en: "Tickets by Status" },
  "Ore Risparmiate per Mese (stima)": { en: "Hours Saved per Month (est.)" },
  "Andamento Mensile Costi Acqua": { en: "Monthly Water Cost Trend" },
@@ -2093,6 +2161,7 @@ const C = {
 };
 
 
+
 // ─── SHARED STYLE CONSTANTS ──────────────────────────────────────────────────
 const S = {
  kpiGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 },
@@ -2118,7 +2187,6 @@ const S = {
  filterSelect12: { padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" },
  mono: { fontFamily: "monospace" },
 };
-
 const UTILITY_META = {
  energia: { label: "Energia Elettrica", color: C.energy, lightColor: C.energyLight },
  gas: { label: "Gas Naturale", color: C.gas, lightColor: C.gasLight },
@@ -2360,12 +2428,15 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
    const coord = BUILDING_COORDS[bld.id];
    if (!coord) return;
    const key = bld.city;
-   if (!groups[key]) groups[key] = { city: key, lat: coord.lat, lng: coord.lng, buildings: [], totalCost: 0, eCost: 0, gCost: 0, wCost: 0, pods: 0, pdrs: 0 };
+   if (!groups[key]) groups[key] = { city: key, lat: coord.lat, lng: coord.lng, buildings: [], totalCost: 0, eCost: 0, gCost: 0, wCost: 0, eKwh: 0, gSmc: 0, wMc: 0, pods: 0, pdrs: 0 };
    groups[key].buildings.push(bld);
    groups[key].totalCost += (bld.totalCost || 0);
    groups[key].eCost += (bld.eCost || 0);
    groups[key].gCost += (bld.gCost || 0);
    groups[key].wCost += (bld.wCost || 0);
+   groups[key].eKwh += (bld.eKwh || 0);
+   groups[key].gSmc += (bld.gSmc || 0);
+   groups[key].wMc += (bld.wMc || 0);
    groups[key].pods += (bld.devices?.pods?.length || 0);
    groups[key].pdrs += (bld.devices?.pdrs?.length || 0);
   });
@@ -2455,10 +2526,10 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
   } else {
    // ── CONSUMPTION VIEW ──
    const getValue = (g) => {
-    if (utilityFilter === "energia") return g.eCost;
-    if (utilityFilter === "gas") return g.gCost;
-    if (utilityFilter === "acqua") return g.wCost;
-    return g.totalCost;
+    if (utilityFilter === "energia") return g.eKwh || 0;
+    if (utilityFilter === "gas") return g.gSmc || 0;
+    if (utilityFilter === "acqua") return g.wMc || 0;
+    return (g.eKwh || 0) + (g.gSmc || 0) + (g.wMc || 0);
    };
    const getColor = () => {
     if (utilityFilter === "energia") return C.energy;
@@ -2471,6 +2542,12 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
     if (utilityFilter === "gas") return "Gas";
     if (utilityFilter === "acqua") return "Acqua";
     return "Totale";
+   };
+   const getUnit = () => {
+    if (utilityFilter === "energia") return "kWh";
+    if (utilityFilter === "gas") return "Smc";
+    if (utilityFilter === "acqua") return "mc";
+    return "";
    };
 
    const maxVal = Math.max(...cityGroups.map(g => getValue(g)), 1);
@@ -2509,7 +2586,7 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
      + 'backdrop-filter:blur(8px);text-align:center;'
      + 'border-bottom:2px solid ' + color + ';'
      + '">'
-     + '<div style="font-size:12px;font-weight:800;color:' + color + '">' + "€" + valTxt + '</div>'
+     + '<div style="font-size:12px;font-weight:800;color:' + color + '">' + valTxt + " " + getUnit() + '</div>'
      + '<div style="font-size:8px;font-weight:600;color:' + txtSub + '">' + g.city + ' · ' + g.buildings.length + ' siti</div>'
      + '</div></div>';
 
@@ -2525,26 +2602,34 @@ function InteractiveMap({ buildings, onSelectBuilding, compact = false, height =
 
      if (utilityFilter === "totale") {
       var pcts = [
-       { l: "Energia", v: g.eCost, c: C.energy },
-       { l: "Gas", v: g.gCost, c: C.gas },
-       { l: "Acqua", v: g.wCost, c: C.water },
+       { l: "Energia", v: g.eKwh || 0, c: C.energy, u: "kWh" },
+       { l: "Gas", v: g.gSmc || 0, c: C.gas, u: "Smc" },
+       { l: "Acqua", v: g.wMc || 0, c: C.water, u: "mc" },
       ];
+      var maxConsV = Math.max(pcts[0].v, pcts[1].v, pcts[2].v, 1);
       pcts.forEach(function(p) {
-       var pct = g.totalCost > 0 ? (p.v / g.totalCost * 100).toFixed(0) : 0;
+       var pct = maxConsV > 0 ? (p.v / maxConsV * 100).toFixed(0) : 0;
        popHtml += '<div style="margin-bottom:6px">'
-        + '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px"><span style="color:#555">' + p.l + '</span><span style="font-weight:700">€' + Math.round(p.v).toLocaleString("it-IT") + '</span></div>'
+        + '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:2px"><span style="color:#555">' + p.l + '</span><span style="font-weight:700">' + Math.round(p.v).toLocaleString("it-IT") + " " + (p.u || "") + '</span></div>'
         + '<div style="height:4px;border-radius:2px;background:#f0f0f0"><div style="height:4px;border-radius:2px;background:' + p.c + ';width:' + pct + '%"></div></div>'
         + '</div>';
       });
-      popHtml += '<div style="border-top:1px solid #eee;padding-top:6px;display:flex;justify-content:space-between;font-weight:800;font-size:12px"><span>Totale</span><span style="color:' + C.accent + '">€' + Math.round(g.totalCost).toLocaleString("it-IT") + '</span></div>';
      } else {
-      popHtml += '<div style="font-size:20px;font-weight:800;color:' + color + '">€' + Math.round(val).toLocaleString("it-IT") + '</div>';
+      popHtml += '<div style="font-size:20px;font-weight:800;color:' + color + '">' + Math.round(val).toLocaleString("it-IT") + " " + getUnit() + '</div>';
      }
 
      popHtml += '<div style="margin-top:10px;border-top:1px solid #eee;padding-top:6px">';
      g.buildings.forEach(function(b) {
-      var bVal = utilityFilter === "energia" ? (b.eCost||0) : utilityFilter === "gas" ? (b.gCost||0) : utilityFilter === "acqua" ? (b.wCost||0) : (b.totalCost||0);
-      popHtml += '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;padding:2px 0"><span style="color:#555">' + b.name.split(" - ")[0] + '</span><span style="font-weight:600">€' + Math.round(bVal).toLocaleString("it-IT") + '</span></div>';
+      if (utilityFilter === "totale") {
+       popHtml += '<div style="font-size:10px;margin-bottom:5px;padding:2px 0"><div style="color:#555;font-weight:600;margin-bottom:2px">' + b.name.split(" - ")[0] + '</div>';
+       if ((b.eKwh||0) > 0) popHtml += '<span style="font-size:9px;color:' + C.energy + ';margin-right:8px">' + Math.round(b.eKwh).toLocaleString("it-IT") + ' kWh</span>';
+       if ((b.gSmc||0) > 0) popHtml += '<span style="font-size:9px;color:' + C.gas + ';margin-right:8px">' + Math.round(b.gSmc).toLocaleString("it-IT") + ' Smc</span>';
+       if ((b.wMc||0) > 0) popHtml += '<span style="font-size:9px;color:' + C.water + '">' + Math.round(b.wMc).toLocaleString("it-IT") + ' mc</span>';
+       popHtml += '</div>';
+      } else {
+       var bVal = utilityFilter === "energia" ? (b.eKwh||0) : utilityFilter === "gas" ? (b.gSmc||0) : (b.wMc||0);
+       popHtml += '<div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:3px;padding:2px 0"><span style="color:#555">' + b.name.split(" - ")[0] + '</span><span style="font-weight:600">' + Math.round(bVal).toLocaleString("it-IT") + " " + getUnit() + '</span></div>';
+      }
      });
      popHtml += '</div></div>';
      circle.bindPopup(popHtml, { maxWidth: 320, className: "nostromo-popup" });
@@ -2862,7 +2947,10 @@ function OverviewDashboard() {
      const gCost = gasData.filter(d => bld.devices.pdrs.includes(d.pdr)).reduce((s, d) => s + d.totaleFattura, 0);
      const wData = WATER_BUILDING_COSTS.find(w => w.buildingId === bld.id);
      const wCost = wData ? wData.costo : 0;
-     return { ...bld, eCost, gCost, wCost, totalCost: eCost + gCost + wCost };
+     const eKwh = energyData.filter(d => bld.devices.pods.includes(d.pod)).reduce((s, d) => s + d.consumoTotale, 0);
+     const gSmc = gasData.filter(d => bld.devices.pdrs.includes(d.pdr)).reduce((s, d) => s + d.consumoSmc, 0);
+     const wMc = wData ? wData.mc : 0;
+     return { ...bld, eCost, eKwh, gCost, gSmc, wCost, wMc, totalCost: eCost + gCost + wCost };
     });
    })()} compact={true} height={220} onCompactClick={() => goToSiti("siti")} />
   </div>
@@ -2876,7 +2964,7 @@ function OverviewDashboard() {
    <span style={{ fontSize: 10, display: "flex", alignItems: "center", gap: 4, color: C.textDim }}>
     <span style={{ width: 8, height: 8, borderRadius: "50%", background: C.water, display: "inline-block" }} /> Acqua
    </span>
-   <span style={{ fontSize: 10, color: C.textDim, marginLeft: "auto" }}>Dimensione = costo relativo</span>
+   <span style={{ fontSize: 10, color: C.textDim, marginLeft: "auto" }}>Dimensione = consumo relativo</span>
   </div>
  </div>
 
@@ -2891,7 +2979,7 @@ function OverviewDashboard() {
  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(155px, 1fr))", gap: 12 }}>
  <KPICard label="N. Siti" value={buildingStats.count} color="#7c3aed" />
  <KPICard label="Costo Siti" value={fmtEuro(buildingStats.totalCost, 0)} color={C.accent} sub="/anno" />
- <KPICard label="Dispositivi" value={buildingStats.totalDevices} color={C.water} sub="associati" />
+ <KPICard label="Contatori" value={buildingStats.totalDevices} color={C.water} sub="associati" />
  <KPICard label="Costo Medio/Sito" value={buildingStats.count > 0 ? fmtEuro(buildingStats.totalCost / buildingStats.count, 0) : "—"} color="#7c3aed" sub="/anno" />
  <KPICard label="Sito più Costoso" value={buildingStats.costliest ? fmtEuro(buildingStats.costliest.totalCost, 0) : "—"} color={C.warn} sub={buildingStats.costliest?.name?.split(" - ")[0] || ""} />
  </div>
@@ -3013,7 +3101,15 @@ function AlertThresholds({ utility }) {
  const dataKey = utility === "energia" ? "consumoTotale" : "consumoSmc";
  const { co, isAll } = useCompanyFilter();
  const [threshold, setThreshold] = useState("");
+ const [costThreshold, setCostThreshold] = useState("");
  const [saved, setSaved] = useState(false);
+ const [savedAlerts, setSavedAlerts] = useState(() => {
+  try { return JSON.parse(localStorage.getItem("fbc_alert_thresholds") || "[]"); } catch { return []; }
+ });
+
+ useEffect(() => {
+  try { localStorage.setItem("fbc_alert_thresholds", JSON.stringify(savedAlerts)); } catch(e) {}
+ }, [savedAlerts]);
 
  // Company selector local override for aggregated mode
  const [localCompany, setLocalCompany] = useState(isAll ? "" : co);
@@ -3028,8 +3124,9 @@ function AlertThresholds({ utility }) {
   const map = {};
   filtered.forEach(d => {
    const key = `${d.anno}-${d.meseConsumi}`;
-   if (!map[key]) map[key] = { anno: d.anno, mese: d.meseConsumi, consumo: 0 };
+   if (!map[key]) map[key] = { anno: d.anno, mese: d.meseConsumi, consumo: 0, costo: 0 };
    map[key].consumo += d[dataKey] || 0;
+   map[key].costo += d.totaleFattura || 0;
   });
   return Object.values(map).sort((a, b) => a.anno - b.anno || a.mese - b.mese);
  }, [activeCompany, filtered]);
@@ -3043,6 +3140,8 @@ function AlertThresholds({ utility }) {
    reale: d.consumo,
    previsto: null,
    soglia: threshold ? parseFloat(threshold) : null,
+   sogliaCosto: costThreshold ? parseFloat(costThreshold) : null,
+   costoReale: d.costo,
   }));
   // Add 3 months of forecast based on same month prior year
   const lastM = last12[last12.length - 1];
@@ -3056,23 +3155,29 @@ function AlertThresholds({ utility }) {
     reale: null,
     previsto: forecast,
     soglia: threshold ? parseFloat(threshold) : null,
+    sogliaCosto: costThreshold ? parseFloat(costThreshold) : null,
    });
   }
   return result;
- }, [monthlyData, threshold]);
+ }, [monthlyData, threshold, costThreshold]);
 
- // Detect alerts: months where consumption exceeds threshold
+ // Detect alerts: months where consumption or cost exceeds threshold
  const alerts = useMemo(() => {
-  if (!threshold) return [];
-  const th = parseFloat(threshold);
-  return chartData.filter(d => (d.reale || d.previsto || 0) > th).map(d => ({
+  if (!threshold && !costThreshold) return [];
+  const consumoAlerts = threshold ? chartData.filter(d => (d.reale || d.previsto || 0) > parseFloat(threshold)).map(d => ({
    month: d.name,
    value: d.reale || d.previsto,
    type: d.reale ? "reale" : "previsto",
-  }));
- }, [chartData, threshold]);
+  })) : [];
+  const costAlerts = costThreshold ? chartData.filter(d => (d.costoReale || 0) > parseFloat(costThreshold)).map(d => ({ month: d.name, value: d.costoReale, type: "costo", })) : [];
+  return [...consumoAlerts, ...costAlerts];
+ }, [chartData, threshold, costThreshold]);
 
- const handleSave = () => { setSaved(true); setTimeout(() => setSaved(false), 2000); };
+ const handleSave = () => {
+  const config = { company: activeCompany, utility, threshold, costThreshold, date: new Date().toLocaleDateString("it-IT") };
+  setSavedAlerts(prev => [...prev.filter(a => !(a.company === activeCompany && a.utility === utility)), config]);
+  setSaved(true); setTimeout(() => setSaved(false), 2000);
+ };
  const companyObj = COMPANIES.find(c => c.id === activeCompany);
 
  // ═══ AGGREGATED MODE — Show company selector ═══
@@ -3133,24 +3238,26 @@ function AlertThresholds({ utility }) {
     </div>
    )}
 
-   <div style={{ display: "grid", gridTemplateColumns: "340px 1fr", gap: 20 }}>
-    {/* LEFT — Threshold Config */}
-    <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-     <div style={{ background: C.card, borderRadius: 14, padding: 24, border: `1px solid ${C.border}` }}>
-      <div style={{ fontSize: 14, fontWeight: 700, color: C.text, marginBottom: 4 }}>
-       Soglia Consumo Mensile
-      </div>
-      <div style={{ fontSize: 11, color: C.textMuted, marginBottom: 18, lineHeight: 1.6 }}>
-       Imposta il limite massimo di consumo mensile. Verrai avvisato quando il valore reale o previsto supera questa soglia.
-      </div>
+   {/* ═══ TWO SEPARATE SECTIONS: CONSUMI + COSTI ═══ */}
+   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginBottom: 20 }}>
 
+    {/* ── CARD CONSUMI ── */}
+    <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${um.color}33`, overflow: "hidden" }}>
+     <div style={{ padding: "14px 20px", background: `${um.color}08`, borderBottom: `1px solid ${um.color}22`, display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${um.color}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>{utility === "energia" ? "⚡" : "🔥"}</div>
+      <div>
+       <div style={{ fontSize: 14, fontWeight: 700, color: um.color }}>Soglia Consumi</div>
+       <div style={{ fontSize: 10, color: C.textMuted }}>Limite massimo di consumo mensile ({unit})</div>
+      </div>
+     </div>
+     <div style={{ padding: 20 }}>
       <div style={{ position: "relative", marginBottom: 16 }}>
        <input
         type="number" value={threshold}
         onChange={e => setThreshold(e.target.value)}
         placeholder={utility === "energia" ? "es. 300000" : "es. 20000"}
         style={{
-         width: "100%", padding: "16px 70px 16px 18px", borderRadius: 12,
+         width: "100%", padding: "14px 70px 14px 18px", borderRadius: 10,
          border: `2px solid ${threshold ? um.color : C.border}`,
          fontSize: 18, fontWeight: 700, fontFamily: "inherit",
          outline: "none", transition: "border 0.2s", background: threshold ? `${um.color}06` : "#fff",
@@ -3158,110 +3265,163 @@ function AlertThresholds({ utility }) {
         onFocus={e => e.target.style.borderColor = um.color}
         onBlur={e => { if (!threshold) e.target.style.borderColor = C.border; }}
        />
-       <span style={{
-        position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)",
-        fontSize: 14, fontWeight: 600, color: C.textMuted,
-       }}>{unit}</span>
+       <span style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", fontSize: 14, fontWeight: 600, color: C.textMuted }}>{unit}</span>
       </div>
 
-      <button onClick={handleSave} style={{
-       width: "100%", padding: "12px 0", borderRadius: 10, border: "none",
-       background: saved ? C.success : `linear-gradient(135deg, ${C.accent}, #4c1d95)`,
-       color: "#fff", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
-       transition: "all 0.3s",
-      }}>{saved ? "✓ Soglia salvata!" : "Salva Soglia"}</button>
-     </div>
-
-     {/* Alerts */}
-     {alerts.length > 0 && (
-      <div style={{ background: "#fef2f2", borderRadius: 14, padding: 18, border: "1px solid #fecaca" }}>
-       <div style={{ fontSize: 13, fontWeight: 700, color: C.danger, marginBottom: 10, display: "flex", alignItems: "center", gap: 6 }}>
-        Superamenti rilevati ({alerts.length})
-       </div>
-       <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-        {alerts.map((a, i) => (
-         <div key={i} style={{
-          display: "flex", justifyContent: "space-between", alignItems: "center",
-          padding: "8px 12px", borderRadius: 8, background: "#fff", border: "1px solid #fecaca",
-         }}>
-          <div>
-           <span style={{ fontSize: 12, fontWeight: 600, color: C.text }}>{a.month}</span>
-           <span style={{ fontSize: 10, color: C.textMuted, marginLeft: 6 }}>{a.type === "previsto" ? "(previsto)" : "(reale)"}</span>
-          </div>
-          <span style={{ fontSize: 12, fontWeight: 700, color: C.danger }}>
-           {a.value.toLocaleString("it-IT")} {unit}
-          </span>
-         </div>
-        ))}
-       </div>
-      </div>
-     )}
-
-     {threshold && alerts.length === 0 && (
-      <div style={{ background: "#ecfdf5", borderRadius: 14, padding: 18, border: "1px solid #a7f3d0" }}>
-       <div style={{ fontSize: 13, fontWeight: 700, color: "#047857", display: "flex", alignItems: "center", gap: 6 }}>
-        Nessun superamento
-       </div>
-       <div style={{ fontSize: 12, color: "#047857", marginTop: 4 }}>Tutti i mesi rientrano nella soglia di {parseFloat(threshold).toLocaleString("it-IT")} {unit}.</div>
-      </div>
-     )}
-    </div>
-
-    {/* RIGHT — Chart: Previsto vs Reale */}
-    <div style={{ background: C.card, borderRadius: 14, padding: 20, border: `1px solid ${C.border}` }}>
-     <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
-      <div>
-       <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Consumi: Reale vs Previsto</div>
-       <div style={{ fontSize: 11, color: C.textMuted }}>Ultimi 12 mesi + proiezione 3 mesi</div>
-      </div>
-      <div style={{ display: "flex", gap: 12, fontSize: 11 }}>
-       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: um.color, display: "inline-block" }}/> Reale</span>
-       <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: um.color + "55", display: "inline-block", border: `1px dashed ${um.color}` }}/> Previsto</span>
-       {threshold && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 2, background: C.danger, display: "inline-block" }}/> Soglia</span>}
-      </div>
-     </div>
-     <ResponsiveContainer width="100%" height={360}>
-      <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
-       <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-       <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
-       <YAxis tick={{ fontSize: 10, fill: C.textMuted }} tickFormatter={v => (v/1000).toFixed(0) + "k"} />
-       <Tooltip formatter={(v, name) => [v ? v.toLocaleString("it-IT") + " " + unit : "—", name === "reale" ? "Reale" : name === "previsto" ? "Previsto" : "Soglia"]}
-        contentStyle={typeof customTooltipStyle !== "undefined" ? customTooltipStyle : {}} />
-       <Bar dataKey="reale" fill={um.color} radius={[4, 4, 0, 0]} barSize={28} name="Reale" />
-       <Bar dataKey="previsto" fill={um.color + "44"} radius={[4, 4, 0, 0]} barSize={28} name="Previsto"
-        stroke={um.color} strokeWidth={1} strokeDasharray="4 2" />
-       {threshold && <Line dataKey="soglia" stroke={C.danger} strokeWidth={2} strokeDasharray="8 4" dot={false} name="Soglia" />}
-      </ComposedChart>
-     </ResponsiveContainer>
-
-     {/* Month-over-month delta table */}
-     {monthlyData.length > 1 && (
-      <div style={{ marginTop: 16 }}>
-       <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 8 }}>Variazione Mese su Mese</div>
-       <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-        {monthlyData.slice(-12).map((d, i, arr) => {
-         if (i === 0) return null;
-         const prev = arr[i - 1];
-         const delta = ((d.consumo - prev.consumo) / prev.consumo * 100);
-         const isUp = delta > 0;
-         const isAlert = threshold && d.consumo > parseFloat(threshold);
-         return (
-          <div key={i} style={{
-           padding: "6px 10px", borderRadius: 8, fontSize: 11, minWidth: 72, textAlign: "center",
-           background: isAlert ? "#fef2f2" : isUp ? "#fffbeb" : "#ecfdf5",
-           border: `1px solid ${isAlert ? "#fecaca" : isUp ? "#fde68a" : "#a7f3d0"}`,
-          }}>
-           <div style={{ fontWeight: 700, color: C.text, fontSize: 10 }}>{MONTHS[d.mese]} {String(d.anno).slice(2)}</div>
-           <div style={{ fontWeight: 700, color: isAlert ? C.danger : isUp ? "#b45309" : "#047857", marginTop: 2 }}>
-            {isUp ? "+" : ""}{delta.toFixed(1)}%
+      {/* Superamenti consumi */}
+      {(() => {
+       const consumoAlerts = alerts.filter(a => a.type !== "costo");
+       return consumoAlerts.length > 0 ? (
+        <div style={{ background: "#fef2f2", borderRadius: 10, padding: 14, border: "1px solid #fecaca", marginBottom: 12 }}>
+         <div style={{ fontSize: 12, fontWeight: 700, color: C.danger, marginBottom: 8 }}>⚠ Superamenti consumo ({consumoAlerts.length})</div>
+         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {consumoAlerts.map((a, i) => (
+           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderRadius: 6, background: "#fff", border: "1px solid #fecaca", fontSize: 12 }}>
+            <span><span style={{ fontWeight: 600, color: C.text }}>{a.month}</span> <span style={{ fontSize: 10, color: C.textMuted }}>({a.type === "previsto" ? "previsto" : "reale"})</span></span>
+            <span style={{ fontWeight: 700, color: C.danger }}>{a.value.toLocaleString("it-IT")} {unit}</span>
            </div>
-          </div>
-         );
-        })}
-       </div>
-      </div>
-     )}
+          ))}
+         </div>
+        </div>
+       ) : threshold ? (
+        <div style={{ background: "#ecfdf5", borderRadius: 10, padding: 12, border: "1px solid #a7f3d0", marginBottom: 12, fontSize: 12, color: "#047857", fontWeight: 600 }}>
+         ✓ Tutti i mesi sotto soglia ({parseFloat(threshold).toLocaleString("it-IT")} {unit})
+        </div>
+       ) : null;
+      })()}
+     </div>
     </div>
+
+    {/* ── CARD COSTI ── */}
+    <div style={{ background: C.card, borderRadius: 14, border: `1px solid ${C.warn}33`, overflow: "hidden" }}>
+     <div style={{ padding: "14px 20px", background: `${C.warn}08`, borderBottom: `1px solid ${C.warn}22`, display: "flex", alignItems: "center", gap: 10 }}>
+      <div style={{ width: 32, height: 32, borderRadius: 8, background: `${C.warn}18`, display: "flex", alignItems: "center", justifyContent: "center", fontSize: 16 }}>💰</div>
+      <div>
+       <div style={{ fontSize: 14, fontWeight: 700, color: C.warn }}>Soglia Costi</div>
+       <div style={{ fontSize: 10, color: C.textMuted }}>Limite massimo di spesa mensile (€)</div>
+      </div>
+     </div>
+     <div style={{ padding: 20 }}>
+      <div style={{ position: "relative", marginBottom: 16 }}>
+       <input
+        type="number" value={costThreshold}
+        onChange={e => setCostThreshold(e.target.value)}
+        placeholder={utility === "energia" ? "es. 25000" : "es. 8000"}
+        style={{
+         width: "100%", padding: "14px 70px 14px 18px", borderRadius: 10,
+         border: `2px solid ${costThreshold ? C.warn : C.border}`,
+         fontSize: 18, fontWeight: 700, fontFamily: "inherit",
+         outline: "none", transition: "border 0.2s", background: costThreshold ? `${C.warn}06` : "#fff",
+        }}
+        onFocus={e => e.target.style.borderColor = C.warn}
+        onBlur={e => { if (!costThreshold) e.target.style.borderColor = C.border; }}
+       />
+       <span style={{ position: "absolute", right: 18, top: "50%", transform: "translateY(-50%)", fontSize: 14, fontWeight: 600, color: C.textMuted }}>&euro;</span>
+      </div>
+
+      {/* Superamenti costi */}
+      {(() => {
+       const costAlerts = alerts.filter(a => a.type === "costo");
+       return costAlerts.length > 0 ? (
+        <div style={{ background: "#fef2f2", borderRadius: 10, padding: 14, border: "1px solid #fecaca", marginBottom: 12 }}>
+         <div style={{ fontSize: 12, fontWeight: 700, color: C.danger, marginBottom: 8 }}>⚠ Superamenti costo ({costAlerts.length})</div>
+         <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+          {costAlerts.map((a, i) => (
+           <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "6px 10px", borderRadius: 6, background: "#fff", border: "1px solid #fecaca", fontSize: 12 }}>
+            <span style={{ fontWeight: 600, color: C.text }}>{a.month}</span>
+            <span style={{ fontWeight: 700, color: C.danger }}>{fmtEuro(a.value, 0)}</span>
+           </div>
+          ))}
+         </div>
+        </div>
+       ) : costThreshold ? (
+        <div style={{ background: "#ecfdf5", borderRadius: 10, padding: 12, border: "1px solid #a7f3d0", marginBottom: 12, fontSize: 12, color: "#047857", fontWeight: 600 }}>
+         ✓ Tutti i mesi sotto soglia ({fmtEuro(parseFloat(costThreshold), 0)})
+        </div>
+       ) : null;
+      })()}
+     </div>
+    </div>
+   </div>
+
+   {/* Bottone Salva + Soglie salvate — full width */}
+   <div style={{ display: "flex", gap: 16, marginBottom: 20, alignItems: "flex-start" }}>
+    <button onClick={handleSave} disabled={!threshold && !costThreshold} style={{
+     padding: "12px 32px", borderRadius: 10, border: "none",
+     background: saved ? C.success : (!threshold && !costThreshold) ? C.border : `linear-gradient(135deg, ${C.accent}, #4c1d95)`,
+     color: "#fff", fontSize: 13, fontWeight: 600, cursor: (!threshold && !costThreshold) ? "default" : "pointer", fontFamily: "inherit",
+     transition: "all 0.3s", flexShrink: 0, opacity: (!threshold && !costThreshold) ? 0.5 : 1,
+    }}>{saved ? "✓ Salvato!" : "💾 Salva Soglie"}</button>
+    {savedAlerts.length > 0 && (
+     <div style={{ flex: 1, background: C.card, borderRadius: 10, padding: "10px 16px", border: "1px solid " + C.border, display: "flex", gap: 16, flexWrap: "wrap", alignItems: "center" }}>
+      <span style={{ fontSize: 11, fontWeight: 600, color: C.textDim }}>Salvate:</span>
+      {savedAlerts.map((a, i) => (
+       <span key={i} style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}>
+        {COMPANIES.find(x => x.id === a.company)?.short || a.company}
+        {a.threshold && <span style={{ color: um.color, marginLeft: 6, fontWeight: 600 }}>{parseInt(a.threshold).toLocaleString("it-IT")} {unit}</span>}
+        {a.costThreshold && <span style={{ color: C.warn, marginLeft: 6, fontWeight: 600 }}>{fmtEuro(parseInt(a.costThreshold), 0)}</span>}
+       </span>
+      ))}
+     </div>
+    )}
+   </div>
+
+   {/* ═══ CHART: Consumi Reale vs Previsto ═══ */}
+   <div style={{ background: C.card, borderRadius: 14, padding: 20, border: `1px solid ${C.border}` }}>
+    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 14 }}>
+     <div>
+      <div style={{ fontSize: 14, fontWeight: 700, color: C.text }}>Consumi: Reale vs Previsto</div>
+      <div style={{ fontSize: 11, color: C.textMuted }}>Ultimi 12 mesi + proiezione 3 mesi</div>
+     </div>
+     <div style={{ display: "flex", gap: 12, fontSize: 11 }}>
+      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: um.color, display: "inline-block" }}/> Reale</span>
+      <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 10, borderRadius: 2, background: um.color + "55", display: "inline-block", border: `1px dashed ${um.color}` }}/> Previsto</span>
+      {threshold && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 2, background: C.danger, display: "inline-block" }}/> Soglia Consumo</span>}
+      {costThreshold && <span style={{ display: "flex", alignItems: "center", gap: 4 }}><span style={{ width: 10, height: 2, background: C.warn, display: "inline-block" }}/> Soglia Costo</span>}
+     </div>
+    </div>
+    <ResponsiveContainer width="100%" height={360}>
+     <ComposedChart data={chartData} margin={{ top: 10, right: 10, left: 0, bottom: 0 }}>
+      <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
+      <XAxis dataKey="name" tick={{ fontSize: 10, fill: C.textMuted }} />
+      <YAxis tick={{ fontSize: 10, fill: C.textMuted }} tickFormatter={v => (v/1000).toFixed(0) + "k"} />
+      <Tooltip formatter={(v, name) => [v ? v.toLocaleString("it-IT") + " " + unit : "—", name === "reale" ? "Reale" : name === "previsto" ? "Previsto" : "Soglia"]}
+       contentStyle={typeof customTooltipStyle !== "undefined" ? customTooltipStyle : {}} />
+      <Bar dataKey="reale" fill={um.color} radius={[4, 4, 0, 0]} barSize={28} name="Reale" />
+      <Bar dataKey="previsto" fill={um.color + "44"} radius={[4, 4, 0, 0]} barSize={28} name="Previsto"
+       stroke={um.color} strokeWidth={1} strokeDasharray="4 2" />
+      {costThreshold && <Line dataKey="sogliaCosto" stroke={C.warn} strokeWidth={2} strokeDasharray="8 4" dot={false} name="Soglia Costo" />}
+      {threshold && <Line dataKey="soglia" stroke={C.danger} strokeWidth={2} strokeDasharray="8 4" dot={false} name="Soglia" />}
+     </ComposedChart>
+    </ResponsiveContainer>
+
+    {/* Month-over-month delta table */}
+    {monthlyData.length > 1 && (
+     <div style={{ marginTop: 16 }}>
+      <div style={{ fontSize: 12, fontWeight: 700, color: C.text, marginBottom: 8 }}>Variazione Mese su Mese</div>
+      <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+       {monthlyData.slice(-12).map((d, i, arr) => {
+        if (i === 0) return null;
+        const prev = arr[i - 1];
+        const delta = ((d.consumo - prev.consumo) / prev.consumo * 100);
+        const isUp = delta > 0;
+        const isAlert = threshold && d.consumo > parseFloat(threshold);
+        return (
+         <div key={i} style={{
+          padding: "6px 10px", borderRadius: 8, fontSize: 11, minWidth: 72, textAlign: "center",
+          background: isAlert ? "#fef2f2" : isUp ? "#fffbeb" : "#ecfdf5",
+          border: `1px solid ${isAlert ? "#fecaca" : isUp ? "#fde68a" : "#a7f3d0"}`,
+         }}>
+          <div style={{ fontWeight: 700, color: C.text, fontSize: 10 }}>{MONTHS[d.mese]} {String(d.anno).slice(2)}</div>
+          <div style={{ fontWeight: 700, color: isAlert ? C.danger : isUp ? "#b45309" : "#047857", marginTop: 2 }}>
+           {isUp ? "+" : ""}{delta.toFixed(1)}%
+          </div>
+         </div>
+        );
+       })}
+      </div>
+     </div>
+    )}
    </div>
   </div>
  );
@@ -3272,7 +3432,7 @@ function EnergySubNav({ active, onChange, view }) {
  const allTabs = [
  { key: "analisi_pod", label: "Analisi per POD", group: "energetica" },
  { key: "ticket_pod", label: "Ticket POD", group: "energetica" },
- { key: "competenza", label: "Vista Competenza", group: "energetica" },
+ { key: "competenza", label: "Per Competenza", group: "energetica" },
  { key: "contratti", label: "Contratti", group: "energetica" },
  { key: "soglie", label: "Soglie Alert", group: "energetica" },
  { key: "contabilita", label: "Vista Contabilità", group: "contabile" },
@@ -3307,6 +3467,7 @@ function EnergyPODAnalysis() {
  const [filterCity, setFilterCity] = useState("all");
  const [filterCdc, setFilterCdc] = useState("all");
  const [selectedPod, setSelectedPod] = useState(null);
+ React.useEffect(() => { const m = document.querySelector("main"); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }, [selectedPod]);
 
  const podStats = useMemo(() => PODS.map(pod => {
  const rows = ED.filter(d => d.pod === pod.id);
@@ -3356,14 +3517,16 @@ function EnergyPODAnalysis() {
  if (selectedPod) {
  const pod = podStats.find(p => p.id === selectedPod);
  if (!pod) { setSelectedPod(null); return null; }
+ const podFornitore = ED.filter(d => d.pod === pod.id).map(d => d.fornitore).filter(Boolean)[0] || "—";
  return (
  <div>
  <button onClick={() => setSelectedPod(null)} style={{ background: "none", border: "none", color: C.accentLight, cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginBottom: 16, padding: 0 }}>
  ← Torna all'elenco POD
  </button>
- <SectionTitle sub={`${pod.site} · ${pod.city} · Potenza contrattuale: ${pod.power} kW`}>
+ <SectionTitle sub={`${pod.site} · ${pod.city} · Potenza: ${pod.power} kW · Operatore: ${podFornitore}`}>
  Dettaglio POD: <span style={{ color: C.energy, fontFamily: "monospace" }}>{pod.id}</span>
  </SectionTitle>
+ <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
  <div style={S.kpiGridNarrow}>
  <KPICard label="Consumo Annuo" value={`${fmt(pod.totConsumo)} kWh`} color={C.energy} />
@@ -3381,10 +3544,10 @@ function EnergyPODAnalysis() {
  {[
  ["POD", pod.id], ["Cliente", pod.client], ["Sito", pod.site],
  ["Città", pod.city], ["Potenza Contrattuale", `${pod.power} kW`], ["Centro di Costo", pod.cdc],
- ["Assegnatario", pod.person], ["Reparto", pod.dept], ["N. Fatture", pod.nFatture],
+ ["Operatore", podFornitore], ["Assegnatario", pod.person], ["N. Fatture", pod.nFatture],
  ].map(([k, v]) => (
- <div key={k} style={{ display: "flex", gap: 8 }}>
- <span style={{ color: C.textDim, minWidth: 120 }}>{k}:</span>
+ <div key={k} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+ <span style={{ color: C.textDim, minWidth: 160, flexShrink: 0, fontSize: 12 }}>{k}:</span>
  <span style={{ color: C.text, fontWeight: 500 }}>{v}</span>
  </div>
  ))}
@@ -3859,6 +4022,7 @@ function TicketDeviceView({ utility }) {
 function EnergyDashboard({ view }) {
  const [subPage, setSubPage] = useState(view === "contabile" ? "contabilita" : "analisi_pod");
  React.useEffect(() => { setSubPage(view === "contabile" ? "contabilita" : "analisi_pod"); }, [view]);
+ React.useEffect(() => { const m = document.querySelector("main"); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }, [subPage]);
 
  return (
  <div>
@@ -3995,7 +4159,7 @@ function EnergyConsumption() {
 
  return (
  <div>
- <SectionTitle sub="Dati organizzati per periodo di consumo effettivo (Mese/Anno Consumi)">Vista Competenza — Energia Elettrica</SectionTitle>
+ <SectionTitle sub="Dati organizzati per periodo di consumo effettivo (Mese/Anno Consumi)">Per Competenza — Energia Elettrica</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
   <DeviceFilterBar type="pod" selValue={selPod} setSelValue={setSelPod} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={podOptions} fornitoreOptions={fornitoreOptions} devices={pods} filteredCount={ED.length} totalCount={_ED0.length} accentColor={C.accent} />
@@ -4102,7 +4266,7 @@ function GasSubNav({ active, onChange, view }) {
  const allTabs = [
  { key: "analisi_pdr", label: "Analisi per PDR", group: "energetica" },
  { key: "ticket_pdr", label: "Ticket PDR", group: "energetica" },
- { key: "competenza", label: "Vista Competenza", group: "energetica" },
+ { key: "competenza", label: "Per Competenza", group: "energetica" },
  { key: "contratti", label: "Contratti", group: "energetica" },
  { key: "soglie", label: "Soglie Alert", group: "energetica" },
  { key: "contabilita", label: "Vista Contabilità", group: "contabile" },
@@ -4137,6 +4301,7 @@ function GasPDRAnalysis() {
  const [filterCity, setFilterCity] = useState("all");
  const [filterCdc, setFilterCdc] = useState("all");
  const [selectedPdr, setSelectedPdr] = useState(null);
+ React.useEffect(() => { const m = document.querySelector("main"); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }, [selectedPdr]);
 
  const pdrStats = useMemo(() => PDRS.map(pdr => {
  const rows = GD.filter(d => d.pdr === pdr.id);
@@ -4184,14 +4349,16 @@ function GasPDRAnalysis() {
  if (selectedPdr) {
  const pdr = pdrStats.find(p => p.id === selectedPdr);
  if (!pdr) { setSelectedPdr(null); return null; }
+ const pdrFornitore = GD.filter(d => d.pdr === pdr.id).map(d => d.fornitore).filter(Boolean)[0] || "—";
  return (
  <div>
  <button onClick={() => setSelectedPdr(null)} style={{ background: "none", border: "none", color: C.accentLight, cursor: "pointer", fontSize: 13, fontFamily: "inherit", marginBottom: 16, padding: 0 }}>
  ← Torna all'elenco PDR
  </button>
- <SectionTitle sub={`${pdr.site} · ${pdr.city} · Distributore: ${pdr.distributor}`}>
+ <SectionTitle sub={`${pdr.site} · ${pdr.city} · Distributore: ${pdr.distributor} · Operatore: ${pdrFornitore}`}>
  Dettaglio PDR: <span style={{ color: C.gas, fontFamily: "monospace" }}>{pdr.id}</span>
  </SectionTitle>
+ <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
  <div style={S.kpiGridNarrow}>
  <KPICard label="Consumo Annuo" value={`${fmt(pdr.totConsumo)} Smc`} color={C.gas} />
@@ -4207,10 +4374,10 @@ function GasPDRAnalysis() {
  {[
  ["PDR", pdr.id], ["Cliente", pdr.client], ["Sito", pdr.site],
  ["Città", pdr.city], ["Distributore", pdr.distributor], ["Centro di Costo", pdr.cdc],
- ["Assegnatario", pdr.person], ["Reparto", pdr.dept], ["N. Fatture", pdr.nFatture],
+ ["Operatore", pdrFornitore], ["Assegnatario", pdr.person], ["N. Fatture", pdr.nFatture],
  ].map(([k, v]) => (
- <div key={k} style={{ display: "flex", gap: 8 }}>
- <span style={{ color: C.textDim, minWidth: 120 }}>{k}:</span>
+ <div key={k} style={{ display: "flex", gap: 8, alignItems: "baseline" }}>
+ <span style={{ color: C.textDim, minWidth: 160, flexShrink: 0, fontSize: 12 }}>{k}:</span>
  <span style={{ color: C.text, fontWeight: 500 }}>{v}</span>
  </div>
  ))}
@@ -4369,6 +4536,7 @@ function GasPDRAnalysis() {
 function GasDashboard({ view }) {
  const [subPage, setSubPage] = useState(view === "contabile" ? "contabilita" : "analisi_pdr");
  React.useEffect(() => { setSubPage(view === "contabile" ? "contabilita" : "analisi_pdr"); }, [view]);
+ React.useEffect(() => { const m = document.querySelector("main"); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }, [subPage]);
 
  return (
  <div>
@@ -4478,7 +4646,7 @@ function GasCompetenza() {
 
  return (
  <div>
- <SectionTitle sub="Dati organizzati per periodo di consumo effettivo">Vista Competenza — Gas Naturale</SectionTitle>
+ <SectionTitle sub="Dati organizzati per periodo di consumo effettivo">Per Competenza — Gas Naturale</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
   <DeviceFilterBar type="pdr" selValue={selPdr} setSelValue={setSelPdr} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={pdrOptions} fornitoreOptions={fornitoreOptions} devices={pdrs} filteredCount={GD.length} totalCount={_GD0.length} accentColor={C.gas} />
@@ -4667,7 +4835,7 @@ function DeviceRegistry() {
 
  return (
  <div>
- <SectionTitle sub="Registro centralizzato di tutti i punti di fornitura / dispositivi con dati gestionali">Anagrafica Dispositivi</SectionTitle>
+ <SectionTitle sub="Registro centralizzato di tutti i punti di fornitura / contatori con dati gestionali">Anagrafica Contatori</SectionTitle>
 
  {/* Type filter pills */}
  <div style={{ display: "flex", gap: 8, marginBottom: 14, flexWrap: "wrap" }}>
@@ -4835,7 +5003,7 @@ function DeviceRegistry() {
   ]}
   data={filtered}
   maxHeight={500}
-  exportFilename="dispositivi"
+  exportFilename="contatori"
  />
 
  {/* Device Detail Modal */}
@@ -5109,7 +5277,7 @@ function DeviceRegistry() {
 
  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(200px, 1fr))", gap: 14, marginTop: 24 }}>
  <div style={{ background: C.card, borderRadius: 10, padding: 16, border: `1px solid ${C.border}` }}>
- <div style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, marginBottom: 8 }}>Dispositivi per Tipo</div>
+ <div style={{ fontSize: 12, fontWeight: 600, color: C.textMuted, marginBottom: 8 }}>Contatori per Tipo</div>
  {Object.entries(UTILITY_META).map(([k, v]) => {
  const ct = allDevices.filter(d => d.type === k).length;
  return (
@@ -5570,7 +5738,6 @@ function BudgetDeltaBar({ x, y, width, height, index, varData }) {
 const VARIANCE_LEGEND = [
  { value: "Budget", type: "square", color: `${C.accent}88` },
  { value: "Consolidato", type: "square", color: C.accent },
- { value: "Delta", type: "square", color: "#9ca3af" },
 ];
 
 // ─── BUDGET OVERVIEW (all utilities consolidated) ────────────────────────────
@@ -7355,6 +7522,7 @@ function AIAssistant() {
 function BuildingDashboard() {
  const { co, isAll, companyName, energyData, gasData } = useCompanyFilter();
  const [selectedBuilding, setSelectedBuilding] = useState(null);
+ React.useEffect(() => { const m = document.querySelector("main"); if (m) m.scrollTop = 0; window.scrollTo(0, 0); }, [selectedBuilding]);
  const [tab, setTab] = useState("panoramica");
  const [searchQuery, setSearchQuery] = useState("");
  const [buildingsState, setBuildingsState] = useState(() => BUILDINGS.map(b => ({ ...b, devices: { ...b.devices, pods: [...b.devices.pods], pdrs: [...b.devices.pdrs], fixedLines: [...b.devices.fixedLines], connectivity: [...b.devices.connectivity], mobileLines: [...b.devices.mobileLines] } })));
@@ -7407,7 +7575,7 @@ function BuildingDashboard() {
 
  const tabs = [
  { key: "panoramica", label: "Panoramica" },
- { key: "dispositivi", label: "Gestione Dispositivi" },
+ { key: "contatori", label: "Gestione Contatori" },
  ];
 
  return (
@@ -7457,24 +7625,8 @@ function BuildingDashboard() {
  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))", gap: 14, marginBottom: 24 }}>
  <KPICard label="N. Siti" value={buildings.length} color="#7c3aed" />
  <KPICard label="Costo Totale Annuo" value={fmtEuro(grandTotal, 0)} color={C.accent} />
- <KPICard label="Dispositivi Associati" value={totalDevices} color={C.water} />
+ <KPICard label="Contatori Associati" value={totalDevices} color={C.water} />
  </div>
-
- {/* Horizontal bar chart */}
- <ChartCard title="Costo Annuo per Sito" exportData={buildings} exportFilename="forecast_costo_sito" style={S.mb20}>
- <ResponsiveContainer width="100%" height={Math.max(180, buildings.length * 48)}>
- <BarChart data={buildings} layout="vertical" margin={{ left: 180 }}>
- <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis type="number" tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
- <YAxis type="category" dataKey="name" tick={{ fill: C.textMuted, fontSize: 11 }} width={170} />
- <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
- <Legend wrapperStyle={S.legendSmall} />
- <Bar dataKey="eCost" stackId="a" fill={C.energy} name="Energia" />
- <Bar dataKey="gCost" stackId="a" fill={C.gas} name="Gas" />
- <Bar dataKey="wCost" stackId="a" fill={C.water} name="Acqua" radius={[0, 4, 4, 0]} />
- </BarChart>
- </ResponsiveContainer>
- </ChartCard>
 
  {/* Sites cards grid */}
  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
@@ -7565,7 +7717,7 @@ function BuildingDashboard() {
  </>
  )}
 
- {tab === "dispositivi" && (
+ {tab === "contatori" && (
  <DeviceAssignmentPanel buildings={buildingsState} onAssign={assignDevice} onUnassign={unassignDevice} companyFilter={co} isAll={isAll} />
  )}
  </>
@@ -7631,7 +7783,7 @@ function DeviceAssignmentPanel({ buildings, onAssign, onUnassign, companyFilter,
  borderRadius: 12, padding: "12px 16px", border: `1px solid #7c3aed22`,
  fontSize: 12, color: C.textMuted, lineHeight: 1.6, marginBottom: 20,
  }}>
- Elenco completo di tutti i dispositivi. Usa il menu a tendina per associare o spostare un dispositivo in un sito. I costi vengono ricalcolati automaticamente nella panoramica.
+ Elenco completo di tutti i contatori. Usa il menu a tendina per associare o spostare un contatore in un sito. I costi vengono ricalcolati automaticamente nella panoramica.
  </div>
 
  {/* Filter pills */}
@@ -7655,7 +7807,7 @@ function DeviceAssignmentPanel({ buildings, onAssign, onUnassign, companyFilter,
  {/* Header */}
  <div style={{ display: "grid", gridTemplateColumns: "90px 1fr 1.2fr 140px 200px 80px", padding: "10px 14px", borderBottom: `1px solid ${C.border}`, fontSize: 11, fontWeight: 600, color: C.textDim, textTransform: "uppercase", letterSpacing: 0.5 }}>
  <span>Tipo</span>
- <span>ID Dispositivo</span>
+ <span>ID Contatore</span>
  <span>Dettaglio</span>
  <span>Azienda</span>
  <span>Sito Associato</span>
@@ -7725,6 +7877,10 @@ function DeviceAssignmentPanel({ buildings, onAssign, onUnassign, companyFilter,
 }
 
 function BuildingDetail({ building: b, onClose }) {
+ const [editSqm, setEditSqm] = useState(false);
+ const [sqmValue, setSqmValue] = useState(String(b.sqm || 0));
+ const [employees, setEmployees] = useState(b.employees || "");
+ const [editEmployees, setEditEmployees] = useState(false);
  const { energyData, gasData } = useCompanyFilter();
  const [detailTab, setDetailTab] = useState("overview");
  const [selectedDevice, setSelectedDevice] = useState(null);
@@ -7823,7 +7979,7 @@ function BuildingDetail({ building: b, onClose }) {
  { key: "energia", label: "Energia" },
  { key: "gas", label: "Gas" },
  { key: "acqua", label: "Acqua" },
- { key: "dispositivi", label: "Dispositivi" },
+ { key: "contatori", label: "Contatori" },
  ];
 
  return (
@@ -7844,10 +8000,27 @@ function BuildingDetail({ building: b, onClose }) {
  </div>
  </div>
  <div style={{ display: "flex", gap: 12, marginTop: 8, flexWrap: "wrap" }}>
- <span style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}> {fmt(b.sqm)} m²</span>
- <span style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}> {b.floors} piani</span>
- <span style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}> {b.numDevices} dispositivi</span>
- <span style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}> {b.city}</span>
+ {editSqm ? (
+  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: C.bg, padding: "3px 6px", borderRadius: 6 }}>
+   <input autoFocus type="number" value={sqmValue} onChange={e => setSqmValue(e.target.value)}
+    onBlur={() => setEditSqm(false)} onKeyDown={e => e.key === "Enter" && setEditSqm(false)}
+    style={{ width: 70, padding: "2px 6px", border: `1px solid ${C.accent}`, borderRadius: 4, fontSize: 11, fontFamily: "inherit", outline: "none" }} />
+   <span style={{ fontSize: 11, color: C.textMuted }}>m²</span>
+  </span>
+ ) : (
+  <span onClick={() => setEditSqm(true)} style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6, cursor: "pointer" }} title="Clicca per modificare">{fmt(parseInt(sqmValue) || 0)} m² ✎</span>
+ )}
+ {editEmployees ? (
+  <span style={{ display: "inline-flex", alignItems: "center", gap: 4, background: C.bg, padding: "3px 6px", borderRadius: 6 }}>
+   <input autoFocus type="number" value={employees} onChange={e => setEmployees(e.target.value)}
+    onBlur={() => setEditEmployees(false)} onKeyDown={e => e.key === "Enter" && setEditEmployees(false)}
+    placeholder="N." style={{ width: 55, padding: "2px 6px", border: `1px solid ${C.accent}`, borderRadius: 4, fontSize: 11, fontFamily: "inherit", outline: "none" }} />
+   <span style={{ fontSize: 11, color: C.textMuted }}>dip.</span>
+  </span>
+ ) : (
+  <span onClick={() => setEditEmployees(true)} style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6, cursor: "pointer" }} title="Clicca per modificare">{employees ? `${employees} dipendenti` : "N. dipendenti"} ✎</span>
+ )}
+ <span style={{ fontSize: 11, color: C.textMuted, background: C.bg, padding: "3px 10px", borderRadius: 6 }}>{b.numDevices} contatori</span>
  <Badge color={companyObj?.color || C.accent}>{companyObj?.short || b.company}</Badge>
  </div>
  </div>
@@ -8068,7 +8241,7 @@ function BuildingDetail({ building: b, onClose }) {
  </div>
  )}
 
- {detailTab === "dispositivi" && (
+ {detailTab === "contatori" && (
  <div>
  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", gap: 12 }}>
  {b.devices.pods.map(id => { const pod = PODS.find(p => p.id === id); const cost = energyData.filter(d => d.pod === id).reduce((s, d) => s + d.totaleFattura, 0); const kwh = energyData.filter(d => d.pod === id).reduce((s, d) => s + d.consumoTotale, 0); return pod ? (
@@ -8111,7 +8284,7 @@ function BuildingDetail({ building: b, onClose }) {
  </div>
  ) : null; })}
  </div>
- {b.numDevices === 0 && <div style={{ textAlign: "center", padding: 40, color: C.textDim }}>Nessun dispositivo associato.</div>}
+ {b.numDevices === 0 && <div style={{ textAlign: "center", padding: 40, color: C.textDim }}>Nessun contatore associato.</div>}
 
  {/* ── Device Detail Modal ── */}
  {selectedDevice && (() => {
@@ -8168,7 +8341,7 @@ function BuildingDetail({ building: b, onClose }) {
   } : null;
 
   // Potenza max
-  const potMax = isPod ? Math.max(...rows.map(d => d.potenzaMax || 0)) : null;
+  const potMax = isPod && rows.length > 0 ? Math.max(...rows.map(d => d.potenzaMax || 0)) : null;
 
   // Average unit price
   const avgPrice = totConsumo > 0 ? totCost / totConsumo : 0;
@@ -8365,19 +8538,36 @@ function UtilityManagementPage() {
  const ticketsInProgress = 5;
  const hoursSaved = 40;
 
- const services = [
-  { name: "Gestione Fatture", active: true },
-  { name: "Ottimizzazione Tariffe", active: true },
-  { name: "Monitoraggio Consumi", active: true },
-  { name: "Reporting Periodico", active: true },
-  { name: "Supporto Contrattuale", active: true },
-  { name: "Gestione Conguagli", active: true },
-  { name: "Budget & Forecasting", active: true },
-  { name: "Audit Energetico", active: false },
-  { name: "Carbon Footprint", active: false },
-  { name: "Demand Response", active: false },
-  { name: "Energy Trading", active: false },
-  { name: "Certificati Verdi (GO)", active: false },
+ // ── Servizi per famiglia (overview) ──
+ const [overviewFamily, setOverviewFamily] = useState("energia");
+ const ovFamilies = [
+  { key: "energia", label: "Energia Elettrica", icon: "⚡", color: C.energy },
+  { key: "gas", label: "Gas Naturale", icon: "🔥", color: "#6366f1" },
+  { key: "acqua", label: "Acqua", icon: "💧", color: "#0ea5e9" },
+ ];
+ const ovEGServices = {
+  standard: [
+   "Portale Nostromo", "Assistenza Operativa Standard (Ticketing & Caring)",
+   "Supporto Gestione Contratti Attivi", "Monitoraggio Costi / Consumi",
+   "Gestione Fatture", "Gestione Conguagli", "Ottimizzazione Tariffe",
+   "Reporting Standard Periodico", "Previsionale di Spesa", "Prompt AI", "Audit Energetico",
+  ],
+  opzionali: ["Modulo PRO Priority Tickets", "Gestione RFQ", "Analisi Corretta Fatturazione", "Reports Custom"],
+  sostenibilita: ["Screening ESG", "Assessment ESG", "Percorso Strategico"],
+ };
+ const ovAcquaServices = {
+  standard: [
+   "Portale Nostromo", "Assistenza Operativa Standard (Ticketing & Caring)",
+   "Supporto Gestione Contratti Attivi", "Monitoraggio Costi / Consumi",
+   "Gestione Fatture", "Gestione Conguagli",
+  ],
+ };
+ const ovData = overviewFamily === "acqua" ? ovAcquaServices : ovEGServices;
+ const ovMeta = ovFamilies.find(f => f.key === overviewFamily);
+ const ovCats = [
+  { key: "standard", label: "Standard", icon: "📋" },
+  { key: "opzionali", label: "Opzionali", icon: "🔧" },
+  { key: "sostenibilita", label: "Sostenibilità", icon: "🌱" },
  ];
 
  // Nearest contract expiry
@@ -8400,30 +8590,55 @@ function UtilityManagementPage() {
     <KPICard label="Ore Risparmiate" value={`${fmt(hoursSaved, 0)} h`} color={C.energyLight} sub="Stima da automazione" />
    </div>
 
-   {/* Servizi Offerti — Griglia */}
-   <SectionTitle sub="Servizi inclusi nel contratto di gestione. I servizi attivi sono evidenziati.">Servizi Offerti</SectionTitle>
-   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 10, marginBottom: 28 }}>
-    {services.map(s => (
-     <div key={s.name} style={{
-      display: "flex", alignItems: "center", gap: 10, padding: "12px 16px",
-      borderRadius: 10, border: `1px solid ${s.active ? C.success + "44" : C.border}`,
-      background: s.active ? `${C.success}08` : "#f9fafb",
-      opacity: s.active ? 1 : 0.5,
-      transition: "all 0.2s",
+   {/* Servizi Offerti — 3 Famiglie */}
+   <SectionTitle sub="Servizi inclusi nel contratto di gestione, suddivisi per famiglia.">Servizi Offerti</SectionTitle>
+   <div style={{ display: "flex", gap: 2, background: "#e9ecf1", borderRadius: 12, padding: 4, border: `1px solid ${C.border}`, marginBottom: 18 }}>
+    {ovFamilies.map(fam => (
+     <button key={fam.key} onClick={() => setOverviewFamily(fam.key)} style={{
+      flex: 1, padding: "9px 14px", borderRadius: 9, border: "none", cursor: "pointer",
+      fontSize: 12, fontWeight: 600, fontFamily: "inherit", transition: "all 0.2s",
+      background: overviewFamily === fam.key ? `linear-gradient(135deg, ${fam.color}, ${fam.color}cc)` : "transparent",
+      color: overviewFamily === fam.key ? "#fff" : C.textMuted,
+      boxShadow: overviewFamily === fam.key ? `0 2px 8px ${fam.color}33` : "none",
+      display: "flex", alignItems: "center", justifyContent: "center", gap: 6,
      }}>
-      <div style={{
-       width: 28, height: 28, borderRadius: 7, flexShrink: 0,
-       background: s.active ? C.success : "#e5e7eb",
-       display: "flex", alignItems: "center", justifyContent: "center",
-       fontSize: 14, color: "#fff", fontWeight: 700,
-      }}>{s.active ? "✓" : "—"}</div>
-      <div>
-       <div style={{ fontSize: 13, fontWeight: 600, color: s.active ? C.text : C.textDim }}>{s.name}</div>
-       <div style={{ fontSize: 10, color: C.textDim }}>{s.active ? "Attivo" : "Non incluso"}</div>
-      </div>
-     </div>
+      <span style={{ fontSize: 14 }}>{fam.icon}</span> {fam.label}
+     </button>
     ))}
    </div>
+   {ovCats.filter(cat => ovData[cat.key]).map(cat => (
+    <div key={cat.key} style={{ marginBottom: 16 }}>
+     <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+      <span style={{ fontSize: 15 }}>{cat.icon}</span>
+      <span style={{ fontSize: 12, fontWeight: 700, color: C.text }}>{cat.label}</span>
+      <div style={{ flex: 1, height: 1, background: C.border, marginLeft: 6 }}></div>
+     </div>
+     <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))", gap: 8 }}>
+      {ovData[cat.key].map(name => {
+       const isStandard = cat.key === "standard";
+       return (
+        <div key={name} style={{
+         display: "flex", alignItems: "center", gap: 10, padding: "10px 14px",
+         borderRadius: 10, border: `1px solid ${isStandard ? C.success + "44" : C.border}`,
+         background: isStandard ? `${C.success}08` : "#f9fafb",
+         opacity: isStandard ? 1 : 0.55, transition: "all 0.2s",
+        }}>
+         <div style={{
+          width: 26, height: 26, borderRadius: 7, flexShrink: 0,
+          background: isStandard ? C.success : "#e5e7eb",
+          display: "flex", alignItems: "center", justifyContent: "center",
+          fontSize: 13, color: "#fff", fontWeight: 700,
+         }}>{isStandard ? "✓" : "—"}</div>
+         <div>
+          <div style={{ fontSize: 12, fontWeight: 600, color: isStandard ? C.text : C.textDim }}>{name}</div>
+          <div style={{ fontSize: 9, color: C.textDim }}>{isStandard ? "Attivo" : "Non incluso"}</div>
+         </div>
+        </div>
+       );
+      })}
+     </div>
+    </div>
+   ))}
 
    {/* Ticket Summary */}
    <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16 }}>
@@ -8667,7 +8882,7 @@ const NAV_ITEMS = [
   { key: "gas_contabile", label: "Vista Contabile" },
  ]},
  { key: "acqua", label: "Acqua" },
- { key: "dispositivi", label: "Anagrafica Contatori" },
+ { key: "contatori", label: "Anagrafica Contatori" },
  { key: "siti", label: "Real Estate" },
  { key: "budget", label: "Budget", children: [
   { key: "budget", label: "Budget Utility" },
@@ -9723,7 +9938,7 @@ function App() {
  case "gas_contabile": return <GasDashboard view="contabile" />;
  case "acqua": return <AcquaPlaceholder />;
  case "siti": return <BuildingDashboard />;
- case "dispositivi": return <DeviceRegistry />;
+ case "contatori": return <DeviceRegistry />;
  case "budget": return <BudgetOverview />;
  case "budget_energia": return <UtilityBudgetTab utility="energia" />;
  case "budget_gas": return <UtilityBudgetTab utility="gas" />;
@@ -9742,6 +9957,8 @@ function App() {
  const mainRef = useRef(null);
  useEffect(() => {
   if (mainRef.current) mainRef.current.scrollTop = 0;
+  window.scrollTo(0, 0);
+  requestAnimationFrame(() => { if (mainRef.current) mainRef.current.scrollTop = 0; window.scrollTo(0, 0); });
  }, [page]);
 
  if (!loggedIn) return <LoginPage lang={lang} setLang={setLang} onLogin={(u) => { setCurrentUser(u); setLoggedIn(true); }} />;

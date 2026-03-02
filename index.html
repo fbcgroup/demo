@@ -687,6 +687,7 @@ const ENERGY_DATA = [
 ENERGY_DATA.forEach((d, i) => {
  d.isEstimated = !d.consumiDefinitivi || (i % 11 === 0);
  d.fornitore = d.pod.startsWith("IT001E0001") ? "Enel Energia" : d.pod.startsWith("IT001E0005") ? "Edison" : d.pod.startsWith("IT001E0007") ? "A2A Energia" : d.pod.startsWith("IT001E0008") ? "Iren" : d.pod.startsWith("IT001E0009") ? "Hera" : "Enel Energia";
+ d.numeroFattura = `FE-${d.anno}-${String(d.meseEmissione + 1).padStart(2, "0")}-${String(i + 1).padStart(5, "0")}`;
 });
 
 const GAS_DATA = [
@@ -942,9 +943,11 @@ GAS_DATA.forEach((d, i) => {
  d.qfMese = +(d.trasporto * 0.35).toFixed(2);
  d.oneri = d.oneriSistema;
  d.accise = d.imposte;
+ d.fornitore = d.pdr.startsWith("003010000010") ? "Eni Gas e Luce" : d.pdr.startsWith("003010000030") ? "Edison" : d.pdr.startsWith("003010000050") ? "Eni Gas e Luce" : d.pdr.startsWith("003010000070") ? "A2A Energia" : d.pdr.startsWith("003010000080") ? "Sorgenia" : "Eni Gas e Luce";
+ d.numeroFattura = `FG-${d.anno}-${String(d.meseEmissione + 1).padStart(2, "0")}-${String(i + 1).padStart(5, "0")}`;
 });
 
-const MOBILE_DATA = [];
+// MOBILE_DATA removed (unused)
 
 // ─── WATER DATA (Distribuzione costi acqua per edificio, proporzionale a mq) ──
 const WATER_TOTAL = { consumoMc: 162326, spesaNetta: 240039.09, iva: 26883.42, totale: 287586.23, costoMedio: 1.4787 };
@@ -988,7 +991,7 @@ function ContractTab({ utility }) {
  return (
  <div>
  <SectionTitle sub="Gestione contratti di fornitura">Contratti — {UTILITY_META[utility]?.label || utility}</SectionTitle>
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+ <div style={S.kpiGrid}>
  <KPICard label="Contratti Totali" value={contracts.length} color={C.accent} />
  <KPICard label="Attivi" value={active.length} color={C.success} />
  <KPICard label="In Scadenza (<6 mesi)" value={expiring.length} color={expiring.length > 0 ? C.warn : C.success} warning={expiring.length > 0} />
@@ -1256,7 +1259,7 @@ function TicketGestioneServizio() {
         <Cell fill={C.success} /><Cell fill={C.warn} /><Cell fill={C.danger} />
        </Pie>
        <Tooltip contentStyle={customTooltipStyle} />
-       <Legend wrapperStyle={{ fontSize: 11 }} />
+       <Legend wrapperStyle={S.legendSmall} />
       </PieChart>
      </ResponsiveContainer>
     </ChartCard>
@@ -1264,8 +1267,8 @@ function TicketGestioneServizio() {
      <ResponsiveContainer width="100%" height={220}>
       <BarChart data={MONTHS.map((m, i) => ({ name: m, ore: +((ticketsResolved / 12) * 2.5 * (0.8 + (((i * 7 + 3) % 11) / 18))).toFixed(1) }))}>
        <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-       <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
-       <YAxis tick={{ fill: C.textDim, fontSize: 10 }} />
+       <XAxis dataKey="name" tick={S.axisTickSmall} />
+       <YAxis tick={S.axisTickSmall} />
        <Tooltip contentStyle={customTooltipStyle} formatter={v => `${v} h`} />
        <Bar dataKey="ore" fill={C.energyLight} radius={[4,4,0,0]} name="Ore" />
       </BarChart>
@@ -1956,7 +1959,7 @@ function PeriodFilterBar({ preset, setPreset, customFrom, setCustomFrom, customT
  const monthOpts = MONTHS.map((m, i) => ({ label: m, value: i }));
  const yearOpts = YEARS.map(y => ({ label: String(y), value: y }));
  return (
- <div style={{ marginBottom: 16 }}>
+ <div style={S.mb16}>
  <div style={{ display: "flex", gap: 4, flexWrap: "wrap", alignItems: "center" }}>
  {PERIOD_PRESETS.map(p => (
  <button key={p.value} onClick={() => setPreset(p.value)} style={{
@@ -2046,6 +2049,31 @@ function FilteredTable({ data, columns, maxHeight, filters, exportFilename }) {
  );
 }
 
+// ─── REUSABLE DEVICE FILTER BAR ──────────────────────────────────────────────
+function DeviceFilterBar({ type, selValue, setSelValue, selFornitore, setSelFornitore, options, fornitoreOptions, devices, filteredCount, totalCount, accentColor }) {
+ const color = accentColor || (type === "pod" ? C.accent : C.gas);
+ const icon = type === "pod" ? "⚡" : "🔥";
+ const label = type === "pod" ? "POD" : "PDR";
+ const isDevActive = selValue !== "all";
+ const isFornActive = selFornitore !== "all";
+ return (
+  <div style={S.filterRow}>
+   <select value={selValue} onChange={e => setSelValue(e.target.value)} style={S.filterSelectWide(isDevActive, color)}>
+    <option value="all">{icon} Tutti i {label}</option>
+    {options.map(id => { const info = devices.find(x => x.id === id); return <option key={id} value={id}>{id}{info ? ` — ${info.site}` : ""}</option>; })}
+   </select>
+   <select value={selFornitore} onChange={e => setSelFornitore(e.target.value)} style={S.filterSelect(isFornActive, color)}>
+    <option value="all">Tutti gli operatori</option>
+    {fornitoreOptions.map(f => <option key={f} value={f}>{f}</option>)}
+   </select>
+   {(isDevActive || isFornActive) && <button onClick={() => { setSelValue("all"); setSelFornitore("all"); }} style={S.resetBtn}>✕ Reset filtri</button>}
+   <span style={S.filterCount}>{filteredCount} di {totalCount} record</span>
+  </div>
+ );
+}
+
+
+
 // ─── COLORS & THEME (SB Admin Pro Style - Light) ────────────────────────────
 
 const C = {
@@ -2062,6 +2090,33 @@ const C = {
  warn: "#f59e0b", danger: "#ef4444", success: "#10b981",
  f1: "#6d28d9", f2: "#a855f7", f3: "#c084fc",
  materia: "#7c3aed", dispacc: "#ef4444", distrib: "#a855f7", oneri: "#6d28d9", imposte: "#78716c",
+};
+
+
+// ─── SHARED STYLE CONSTANTS ──────────────────────────────────────────────────
+const S = {
+ kpiGrid: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 },
+ kpiGridNarrow: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12, marginBottom: 20 },
+ chartGrid2: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 },
+ chartGrid12: { display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16, marginBottom: 20 },
+ cardBase: { background: C.card, borderRadius: 12, border: `1px solid ${C.border}` },
+ filterRow: { display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" },
+ filterSelect: (active, color) => ({ padding: "7px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, fontSize: 11, fontFamily: "inherit", minWidth: 160, cursor: "pointer", color: active ? color : C.text, fontWeight: active ? 600 : 400 }),
+ filterSelectWide: (active, color) => ({ padding: "7px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, fontSize: 11, fontFamily: "inherit", minWidth: 220, cursor: "pointer", color: active ? color : C.text, fontWeight: active ? 600 : 400 }),
+ resetBtn: { padding: "6px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: "#fff", fontSize: 11, cursor: "pointer", color: C.danger, fontFamily: "inherit" },
+ filterCount: { fontSize: 11, color: C.textDim },
+ axisTickDim: { fill: C.textDim, fontSize: 11 },
+ axisTickSmall: { fill: C.textDim, fontSize: 10 },
+ legendSmall: { fontSize: 11 },
+
+ mb16: { marginBottom: 16 },
+ mb20: { marginBottom: 20 },
+ mb22: { marginBottom: 22 },
+ mb24: { marginBottom: 24 },
+
+ searchInput: { flex: 1, minWidth: 220, padding: "9px 14px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" },
+ filterSelect12: { padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" },
+ mono: { fontFamily: "monospace" },
 };
 
 const UTILITY_META = {
@@ -2743,10 +2798,10 @@ function OverviewDashboard() {
  <ResponsiveContainer width="100%" height={300}>
  <BarChart data={monthlyTrend} margin={{ top: 5, right: 10, bottom: 5, left: 10 }}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={(v) => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  <Bar dataKey="energia" stackId="a" fill={C.energy} name="Energia" radius={[0,0,0,0]} />
  <Bar dataKey="gas" stackId="a" fill={C.gas} name="Gas" />
  <Bar dataKey="acqua" stackId="a" fill={C.water} name="Acqua" radius={[4,4,0,0]} />
@@ -2773,7 +2828,7 @@ function OverviewDashboard() {
  {donutData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
  </Pie>
  <Tooltip contentStyle={customTooltipStyle} formatter={(v) => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  </PieChart>
  </ResponsiveContainer>
  </ChartCard>
@@ -3241,35 +3296,46 @@ function EnergySubNav({ active, onChange, view }) {
 
 function EnergyPODAnalysis() {
  const { energyData: ENERGY_DATA, pods: PODS } = useCompanyFilter();
+ const pods = PODS;
+ const [selPod, setSelPod] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _ED0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(ENERGY_DATA);
+ const ED = useMemo(() => _ED0.filter(d => (selPod === "all" || d.pod === selPod) && (selFornitore === "all" || d.fornitore === selFornitore)), [_ED0, selPod, selFornitore]);
+ const podOptions = useMemo(() => [...new Set(_ED0.map(d => d.pod))].sort(), [_ED0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_ED0.map(d => d.fornitore).filter(Boolean))].sort(), [_ED0]);
  const [searchPod, setSearchPod] = useState("");
  const [filterCity, setFilterCity] = useState("all");
  const [filterCdc, setFilterCdc] = useState("all");
  const [selectedPod, setSelectedPod] = useState(null);
 
  const podStats = useMemo(() => PODS.map(pod => {
- const rows = ENERGY_DATA.filter(d => d.pod === pod.id);
+ const rows = ED.filter(d => d.pod === pod.id);
  const totConsumo = rows.reduce((s, d) => s + d.consumoTotale, 0);
  const totFattura = rows.reduce((s, d) => s + d.totaleFattura, 0);
  const totEnergia = rows.reduce((s, d) => s + d.importoEnergia, 0);
  const totConguagli = rows.reduce((s, d) => s + d.conguaglio, 0);
- const pctEstimated = rows.filter(d => d.isEstimated).length / rows.length * 100;
- const avgPowerMax = rows.reduce((s, d) => s + d.potenzaMax, 0) / rows.length;
+ const pctEstimated = rows.length > 0 ? rows.filter(d => d.isEstimated).length / rows.length * 100 : 0;
+ const avgPowerMax = rows.length > 0 ? rows.reduce((s, d) => s + d.potenzaMax, 0) / rows.length : 0;
  const costoUnit = totConsumo > 0 ? totEnergia / totConsumo : 0;
  const consumoF1 = rows.reduce((s, d) => s + d.consumoF1, 0);
  const consumoF2 = rows.reduce((s, d) => s + d.consumoF2, 0);
  const consumoF3 = rows.reduce((s, d) => s + d.consumoF3, 0);
- // month trend for sparkline
- const monthly = Array.from({ length: 12 }, (_, m) => {
- const mr = rows.filter(d => d.meseConsumi === m);
- return { m, consumo: mr.reduce((s, d) => s + d.consumoTotale, 0), costo: mr.reduce((s, d) => s + d.totaleFattura, 0) };
+ // chronological month trend
+ const byM = {};
+ rows.forEach(d => {
+  const k = `${d.anno}-${String(d.meseConsumi).padStart(2,"0")}`;
+  if (!byM[k]) byM[k] = { k, name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, consumo: 0, costo: 0 };
+  byM[k].consumo += d.consumoTotale;
+  byM[k].costo += d.totaleFattura;
  });
+ const monthly = Object.values(byM).sort((a,b) => a.k.localeCompare(b.k));
  return {
  ...pod, totConsumo, totFattura, totEnergia, costoUnit, totConguagli, pctEstimated,
  avgPowerMax: +avgPowerMax.toFixed(0), consumoF1, consumoF2, consumoF3, monthly,
  nFatture: rows.length,
  nStorni: rows.filter(d => d.tipoDocumento === "S").length,
  };
- }), []);
+ }), [ED]);
 
  const filtered = podStats.filter(p => {
  if (searchPod && !p.id.toLowerCase().includes(searchPod.toLowerCase()) && !p.site.toLowerCase().includes(searchPod.toLowerCase()) && !p.person.toLowerCase().includes(searchPod.toLowerCase())) return false;
@@ -3299,7 +3365,7 @@ function EnergyPODAnalysis() {
  Dettaglio POD: <span style={{ color: C.energy, fontFamily: "monospace" }}>{pod.id}</span>
  </SectionTitle>
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12, marginBottom: 20 }}>
+ <div style={S.kpiGridNarrow}>
  <KPICard label="Consumo Annuo" value={`${fmt(pod.totConsumo)} kWh`} color={C.energy} />
  <KPICard label="Costo Unitario" value={`€${pod.costoUnit.toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/kWh`} color={C.energyLight} />
  <KPICard label="Totale Fatturato" value={fmtEuro(pod.totFattura, 0)} color={C.accent} />
@@ -3325,13 +3391,13 @@ function EnergyPODAnalysis() {
  </div>
  </div>
 
- <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+ <div style={S.chartGrid2}>
  <ChartCard title="Trend Consumo Mensile (kWh)">
  <ResponsiveContainer width="100%" height={240}>
- <BarChart data={pod.monthly.map(d => ({ name: MONTHS[d.m], consumo: d.consumo }))}>
+ <BarChart data={pod.monthly}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickDim} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} kWh`} />
  <Bar dataKey="consumo" fill={C.energy} radius={[4,4,0,0]} name="kWh" />
  </BarChart>
@@ -3339,10 +3405,10 @@ function EnergyPODAnalysis() {
  </ChartCard>
  <ChartCard title="Trend Costo Mensile (€)">
  <ResponsiveContainer width="100%" height={240}>
- <BarChart data={pod.monthly.map(d => ({ name: MONTHS[d.m], costo: +d.costo.toFixed(0) }))}>
+ <BarChart data={pod.monthly.map(d => ({ ...d, costo: +d.costo.toFixed(0) }))}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${v}`} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${v}`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
  <Bar dataKey="costo" fill={C.accent} radius={[4,4,0,0]} name="€" />
  </BarChart>
@@ -3350,7 +3416,7 @@ function EnergyPODAnalysis() {
  </ChartCard>
  </div>
 
- <ChartCard title="Mix Fasce Orarie Annuo" style={{ marginBottom: 20 }}>
+ <ChartCard title="Mix Fasce Orarie Annuo" style={S.mb20}>
  <ResponsiveContainer width="100%" height={200}>
  <PieChart>
  <Pie data={[
@@ -3361,7 +3427,7 @@ function EnergyPODAnalysis() {
  <Cell fill={C.f1} /><Cell fill={C.f2} /><Cell fill={C.f3} />
  </Pie>
  <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} kWh`} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  </PieChart>
  </ResponsiveContainer>
  </ChartCard>
@@ -3369,6 +3435,7 @@ function EnergyPODAnalysis() {
  <SectionTitle>Storico Fatture</SectionTitle>
  <DataTable exportFilename="energia_pod"
  columns={[
+ { key: "anno", label: "Anno" },
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
  { key: "meseEmissione", label: "Mese Emiss.", render: v => MONTHS[v] },
  { key: "consumoTotale", label: "Consumo kWh", align: "right", render: v => fmt(v) },
@@ -3377,7 +3444,7 @@ function EnergyPODAnalysis() {
  { key: "consumiDefinitivi", label: "Fonte Dato", render: (v, row) => <Badge color={row.isEstimated ? C.warn : C.success}>{v}</Badge> },
  { key: "tipoDocumento", label: "Tipo", render: v => <Badge color={v === "S" ? C.danger : C.success}>{v === "S" ? "Storno" : "Fattura"}</Badge> },
  ]}
- data={ENERGY_DATA.filter(d => d.pod === pod.id)}
+ data={ED.filter(d => d.pod === pod.id).sort((a,b) => a.anno - b.anno || a.meseConsumi - b.meseConsumi)}
  maxHeight={320}
  />
  </div>
@@ -3388,50 +3455,54 @@ function EnergyPODAnalysis() {
  <div>
  <SectionTitle sub="Overview dei punti di prelievo con KPI aggregati e drill-down per singolo POD">Analisi per POD — Energia Elettrica</SectionTitle>
 
+ <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
+
+  <DeviceFilterBar type="pod" selValue={selPod} setSelValue={setSelPod} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={podOptions} fornitoreOptions={fornitoreOptions} devices={pods} filteredCount={ED.length} totalCount={_ED0.length} accentColor={C.accent} />
+
  {/* OVERVIEW KPIs */}
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+ <div style={S.kpiGrid}>
  <KPICard label="POD Totali" value={PODS.length} color={C.energy} />
- <KPICard label="Consumo Totale Annuo" value={`${fmt(totalConsumo)} kWh`} color={C.energyLight} />
- <KPICard label="Spesa Totale Annua" value={fmtEuro(totalFattura, 0)} color={C.accent} />
+ <KPICard label="Consumo Totale" value={`${fmt(totalConsumo)} kWh`} color={C.energyLight} />
+ <KPICard label="Spesa Totale" value={fmtEuro(totalFattura, 0)} color={C.accent} />
  <KPICard label="Costo Medio" value={`€${avgCostoUnit.toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/kWh`} color={C.success} />
- <KPICard label="Operatori Attivi" value={[...new Set(ENERGY_DATA.map(d => d.fornitore).filter(Boolean))].length || 3} color={C.accentLight} />
+ <KPICard label="Operatori Attivi" value={[...new Set(ED.map(d => d.fornitore).filter(Boolean))].length || 3} color={C.accentLight} />
  </div>
 
- {/* Andamento Spesa e Consumi ultimi 12 mesi */}
+ {/* Andamento Spesa e Consumi — cronologico */}
  <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 22 }}>
- <ChartCard title="Andamento della Spesa (Ultimi 12 mesi)">
+ <ChartCard title="Andamento della Spesa">
  <ResponsiveContainer width="100%" height={220}>
  <BarChart data={(() => {
  const byM = {};
- ENERGY_DATA.forEach(d => {
+ ED.forEach(d => {
   const k = `${d.anno}-${String(d.meseConsumi).padStart(2,"0")}`;
-  if (!byM[k]) byM[k] = { name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, costo: 0 };
+  if (!byM[k]) byM[k] = { k, name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, costo: 0 };
   byM[k].costo += d.totaleFattura;
  });
- return Object.values(byM).sort((a,b) => a.name > b.name ? 1:-1).slice(-12);
+ return Object.values(byM).sort((a,b) => a.k.localeCompare(b.k));
  })()}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 10 }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickSmall} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
  <Bar dataKey="costo" fill={C.energy} radius={[4,4,0,0]} name="Spesa €" />
  </BarChart>
  </ResponsiveContainer>
  </ChartCard>
- <ChartCard title="Andamento dei Consumi Mensile (Ultimi 12 mesi)">
+ <ChartCard title="Andamento dei Consumi Mensile">
  <ResponsiveContainer width="100%" height={220}>
  <BarChart data={(() => {
  const byM = {};
- ENERGY_DATA.forEach(d => {
+ ED.forEach(d => {
   const k = `${d.anno}-${String(d.meseConsumi).padStart(2,"0")}`;
-  if (!byM[k]) byM[k] = { name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, consumo: 0 };
+  if (!byM[k]) byM[k] = { k, name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, consumo: 0 };
   byM[k].consumo += d.consumoTotale;
  });
- return Object.values(byM).sort((a,b) => a.name > b.name ? 1:-1).slice(-12);
+ return Object.values(byM).sort((a,b) => a.k.localeCompare(b.k));
  })()}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 10 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickSmall} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} kWh`} />
  <Bar dataKey="consumo" fill={C.energyLight} radius={[4,4,0,0]} name="kWh" />
  </BarChart>
@@ -3442,17 +3513,17 @@ function EnergyPODAnalysis() {
 
 
  {/* FILTERS */}
- <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+ <div style={S.filterRow}>
  <input
  value={searchPod} onChange={e => setSearchPod(e.target.value)}
  placeholder=" Cerca POD, sito, persona..."
- style={{ flex: 1, minWidth: 220, padding: "9px 14px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }}
+ style={S.searchInput}
  />
- <select value={filterCity} onChange={e => setFilterCity(e.target.value)} style={{ padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" }}>
+ <select value={filterCity} onChange={e => setFilterCity(e.target.value)} style={S.filterSelect12}>
  <option value="all">Tutte le città</option>
  {cities.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
- <select value={filterCdc} onChange={e => setFilterCdc(e.target.value)} style={{ padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" }}>
+ <select value={filterCdc} onChange={e => setFilterCdc(e.target.value)} style={S.filterSelect12}>
  <option value="all">Tutti i CdC</option>
  {cdcs.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
@@ -3805,7 +3876,12 @@ function EnergyDashboard({ view }) {
 
 function EnergyAccounting() {
  const { energyData, pods } = useCompanyFilter();
- const { preset, setPreset, filtered: ED, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(energyData);
+ const [selPod, setSelPod] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _ED0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(energyData);
+ const ED = useMemo(() => _ED0.filter(d => (selPod === "all" || d.pod === selPod) && (selFornitore === "all" || d.fornitore === selFornitore)), [_ED0, selPod, selFornitore]);
+ const podOptions = useMemo(() => [...new Set(_ED0.map(d => d.pod))].sort(), [_ED0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_ED0.map(d => d.fornitore).filter(Boolean))].sort(), [_ED0]);
  const byMonth = buildTimeline(ED, "meseEmissione", rows => ({
  fatturato: +rows.reduce((s, d) => s + d.totaleFattura, 0).toFixed(2),
  conguagli: +rows.reduce((s, d) => s + d.conguaglio, 0).toFixed(2),
@@ -3821,19 +3897,21 @@ function EnergyAccounting() {
  <SectionTitle sub="Dati organizzati per data di emissione fattura">Vista Contabilità — Energia Elettrica</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+  <DeviceFilterBar type="pod" selValue={selPod} setSelValue={setSelPod} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={podOptions} fornitoreOptions={fornitoreOptions} devices={pods} filteredCount={ED.length} totalCount={_ED0.length} accentColor={C.accent} />
+
+ <div style={S.kpiGrid}>
  <KPICard label="Totale Fatturato" value={fmtEuro(totalFatturato, 0)} color={C.energy} />
  <KPICard label="N. Fatture Emesse" value={fmt(ED.length)} color={C.accentLight} />
  <KPICard label="Storni / Note di Credito" value={nStorni} color={C.danger} />
  <KPICard label="Importo Conguagli" value={fmtEuro(totalConguagli, 0)} color={totalConguagli > 0 ? C.danger : C.success} />
  </div>
 
- <ChartCard title="Trend Fatturato per Data Emissione" exportData={byMonth} exportFilename="energia_fatturato" style={{ marginBottom: 20 }}>
+ <ChartCard title="Trend Fatturato per Data Emissione" exportData={byMonth} exportFilename="energia_fatturato" style={S.mb20}>
  <ResponsiveContainer width="100%" height={280}>
  <ComposedChart data={byMonth}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={(v) => fmtEuro(v, 0)} />
  <Bar dataKey="fatturato" fill={C.energy} name="Fatturato" radius={[4,4,0,0]} />
  <Line dataKey="conguagli" stroke={C.danger} name="Conguagli" strokeWidth={2} dot={{ r: 3 }} />
@@ -3845,14 +3923,19 @@ function EnergyAccounting() {
  <FilteredTable exportFilename="energia_contabilita"
  data={ED}
  filters={[
- { key: "pod", label: "Tutti i POD", accessor: d => d.pod },
+      { key: "pod", label: "Tutti i POD", accessor: d => d.pod, format: v => { const p = pods.find(p => p.id === v); return p ? `${v} — ${p.site}` : v; } },
+      { key: "fornitore", label: "Tutti gli operatori", accessor: d => d.fornitore || "N/D" },
+      { key: "numeroFattura", label: "Tutte le fatture", accessor: d => d.numeroFattura || "N/D" },
  { key: "site", label: "Tutti i siti", accessor: d => d.site },
  { key: "mese", label: "Tutti i mesi", accessor: d => d.meseEmissione, format: v => MONTHS[parseInt(v)] },
  ]}
  columns={[
+ { key: "anno", label: "Anno" },
  { key: "meseEmissione", label: "Mese Emissione", render: v => MONTHS[v] },
+      { key: "numeroFattura", label: "N. Fattura" },
  { key: "pod", label: "POD" },
  { key: "site", label: "Sito" },
+      { key: "fornitore", label: "Operatore" },
  { key: "tipoDocumento", label: "Tipo", render: v => <Badge color={v === "S" ? C.danger : C.success}>{v === "S" ? "Storno" : "Fattura"}</Badge> },
  { key: "consumoTotale", label: "Consumo kWh", align: "right", render: v => fmt(v) },
  { key: "totaleNettoIVA", label: "Netto IVA", align: "right", render: v => fmtEuro(v) },
@@ -3868,7 +3951,12 @@ function EnergyAccounting() {
 
 function EnergyConsumption() {
  const { energyData, pods } = useCompanyFilter();
- const { preset, setPreset, filtered: ED, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(energyData);
+ const [selPod, setSelPod] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _ED0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(energyData);
+ const ED = useMemo(() => _ED0.filter(d => (selPod === "all" || d.pod === selPod) && (selFornitore === "all" || d.fornitore === selFornitore)), [_ED0, selPod, selFornitore]);
+ const podOptions = useMemo(() => [...new Set(_ED0.map(d => d.pod))].sort(), [_ED0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_ED0.map(d => d.fornitore).filter(Boolean))].sort(), [_ED0]);
  const byMonth = buildTimeline(ED, "meseConsumi", rows => {
  const totConsumo = rows.reduce((s, d) => s + d.consumoTotale, 0);
  const totEnergia = rows.reduce((s, d) => s + d.importoEnergia, 0);
@@ -3910,7 +3998,9 @@ function EnergyConsumption() {
  <SectionTitle sub="Dati organizzati per periodo di consumo effettivo (Mese/Anno Consumi)">Vista Competenza — Energia Elettrica</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+  <DeviceFilterBar type="pod" selValue={selPod} setSelValue={setSelPod} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={podOptions} fornitoreOptions={fornitoreOptions} devices={pods} filteredCount={ED.length} totalCount={_ED0.length} accentColor={C.accent} />
+
+ <div style={S.kpiGrid}>
  <KPICard label="Spesa Totale" value={fmtEuro(ED.reduce((s,d)=>s+d.totaleFattura,0), 0)} color={C.accent} />
  <KPICard label="Costo Medio Unitario" value={`€${avgCostoUnit.toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/kWh`} color={C.energyLight} />
  <KPICard label="Consumo Totale" value={`${fmt(totConsumo)} kWh`} color={C.energy} />
@@ -3918,15 +4008,15 @@ function EnergyConsumption() {
  <KPICard label="% Consumi Definitivi" value={`${fmt(100 - pctEstimated, 1)}%`} color={pctEstimated > 20 ? C.warn : C.success} warning={pctEstimated > 20} sub={`${fmt(pctEstimated, 1)}% stimati`} />
  </div>
 
- <ChartCard title="Trend Consumo Mensile per Fascia (kWh)" exportData={byMonth} exportFilename="energia_consumi_fascia" style={{ marginBottom: 16 }}>
+ <ChartCard title="Trend Consumo Mensile per Fascia (kWh)" exportData={byMonth} exportFilename="energia_consumi_fascia" style={S.mb16}>
  <ResponsiveContainer width="100%" height={280}>
  <ComposedChart data={byMonth}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis yAxisId="left" tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis yAxisId="left" tick={S.axisTickDim} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
  <YAxis yAxisId="right" orientation="right" tick={{ fill: C.energyLight, fontSize: 11 }} tickFormatter={v => `€${v}`} domain={[0, "auto"]} />
  <Tooltip contentStyle={customTooltipStyle} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  <Bar yAxisId="left" dataKey="f1" stackId="a" fill={C.f1} name="F1" />
  <Bar yAxisId="left" dataKey="f2" stackId="a" fill={C.f2} name="F2" />
  <Bar yAxisId="left" dataKey="f3" stackId="a" fill={C.f3} name="F3 Fuori punta" radius={[4,4,0,0]} />
@@ -3935,12 +4025,12 @@ function EnergyConsumption() {
  </ResponsiveContainer>
  </ChartCard>
 
- <ChartCard title="Trend Costi Mensili (€)" exportData={byMonth} exportFilename="energia_costi_mensili" style={{ marginBottom: 20 }}>
+ <ChartCard title="Trend Costi Mensili (€)" exportData={byMonth} exportFilename="energia_costi_mensili" style={S.mb20}>
  <ResponsiveContainer width="100%" height={280}>
  <BarChart data={byMonth}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={(v) => fmtEuro(v, 0)} />
  <Bar dataKey="costoTotale" fill={C.energy} name="Costo Totale €" radius={[4,4,0,0]} />
  </BarChart>
@@ -3949,7 +4039,7 @@ function EnergyConsumption() {
 
  {/* COST BREAKDOWN — WATERFALL */}
  <SectionTitle sub="Scomposizione del costo unitario €/kWh per componente">Costi Unitari — Analisi Componenti</SectionTitle>
- <div style={{ display: "grid", gridTemplateColumns: "1fr 1.2fr", gap: 16, marginBottom: 20 }}>
+ <div style={S.chartGrid12}>
  <ChartCard title="Composizione Costo" exportData={costBreakdown} exportFilename="energia_composizione_costo">
  <ResponsiveContainer width="100%" height={280}>
  <PieChart>
@@ -3982,14 +4072,17 @@ function EnergyConsumption() {
  <FilteredTable exportFilename="energia_consumi"
  data={ED}
  filters={[
- { key: "pod", label: "Tutti i POD", accessor: d => d.pod },
+      { key: "pod", label: "Tutti i POD", accessor: d => d.pod, format: v => { const p = pods.find(p => p.id === v); return p ? `${v} — ${p.site}` : v; } },
+      { key: "fornitore", label: "Tutti gli operatori", accessor: d => d.fornitore || "N/D" },
  { key: "site", label: "Tutti i siti", accessor: d => d.site },
  { key: "mese", label: "Tutti i mesi", accessor: d => d.meseConsumi, format: v => MONTHS[parseInt(v)] },
  ]}
  columns={[
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
+ { key: "anno", label: "Anno" },
  { key: "pod", label: "POD" },
  { key: "site", label: "Sito" },
+      { key: "fornitore", label: "Operatore" },
  { key: "consumoTotale", label: "Totale kWh", align: "right", render: v => fmt(v) },
  { key: "consumoF1", label: "F1 kWh", align: "right", render: v => fmt(v) },
  { key: "consumoF2", label: "F2 kWh", align: "right", render: v => fmt(v) },
@@ -4033,13 +4126,20 @@ function GasSubNav({ active, onChange, view }) {
 
 function GasPDRAnalysis() {
  const { gasData: GAS_DATA, pdrs: PDRS } = useCompanyFilter();
+ const pdrs = PDRS;
+ const [selPdr, setSelPdr] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _GD0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(GAS_DATA);
+ const GD = useMemo(() => _GD0.filter(d => (selPdr === "all" || d.pdr === selPdr) && (selFornitore === "all" || d.fornitore === selFornitore)), [_GD0, selPdr, selFornitore]);
+ const pdrOptions = useMemo(() => [...new Set(_GD0.map(d => d.pdr))].sort(), [_GD0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_GD0.map(d => d.fornitore).filter(Boolean))].sort(), [_GD0]);
  const [searchPdr, setSearchPdr] = useState("");
  const [filterCity, setFilterCity] = useState("all");
  const [filterCdc, setFilterCdc] = useState("all");
  const [selectedPdr, setSelectedPdr] = useState(null);
 
  const pdrStats = useMemo(() => PDRS.map(pdr => {
- const rows = GAS_DATA.filter(d => d.pdr === pdr.id);
+ const rows = GD.filter(d => d.pdr === pdr.id);
  const totConsumo = rows.reduce((s, d) => s + d.consumoSmc, 0);
  const totFattura = rows.reduce((s, d) => s + d.totaleFattura, 0);
  const totImponibile = rows.reduce((s, d) => s + (d.totaleFattura - (d.iva || 0)), 0);
@@ -4049,16 +4149,21 @@ function GasPDRAnalysis() {
  const totTrasporto = rows.reduce((s, d) => s + d.trasporto, 0);
  const totOneri = rows.reduce((s, d) => s + (d.oneriSistema || 0), 0);
  const totAccise = rows.reduce((s, d) => s + (d.imposte || 0), 0);
- const monthly = Array.from({ length: 12 }, (_, m) => {
- const mr = rows.filter(d => d.meseConsumi === m);
- return { m, consumo: mr.reduce((s, d) => s + d.consumoSmc, 0), costo: +mr.reduce((s, d) => s + d.totaleFattura, 0).toFixed(0) };
+ // chronological month trend
+ const byM = {};
+ rows.forEach(d => {
+  const k = `${d.anno}-${String(d.meseConsumi).padStart(2,"0")}`;
+  if (!byM[k]) byM[k] = { k, name: `${MONTHS[d.meseConsumi]} ${String(d.anno).slice(2)}`, consumo: 0, costo: 0 };
+  byM[k].consumo += d.consumoSmc;
+  byM[k].costo += d.totaleFattura;
  });
+ const monthly = Object.values(byM).sort((a,b) => a.k.localeCompare(b.k));
  return {
  ...pdr, totConsumo, totFattura, totImponibile, costoUnit, avgPCS, monthly,
  totQV, totTrasporto, totOneri, totAccise,
  nFatture: rows.length,
  };
- }), []);
+ }), [GD]);
 
  const filtered = pdrStats.filter(p => {
  if (searchPdr && !p.id.toLowerCase().includes(searchPdr.toLowerCase()) && !p.site.toLowerCase().includes(searchPdr.toLowerCase()) && !p.person.toLowerCase().includes(searchPdr.toLowerCase())) return false;
@@ -4088,7 +4193,7 @@ function GasPDRAnalysis() {
  Dettaglio PDR: <span style={{ color: C.gas, fontFamily: "monospace" }}>{pdr.id}</span>
  </SectionTitle>
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(170px, 1fr))", gap: 12, marginBottom: 20 }}>
+ <div style={S.kpiGridNarrow}>
  <KPICard label="Consumo Annuo" value={`${fmt(pdr.totConsumo)} Smc`} color={C.gas} />
  <KPICard label="Costo Unitario" value={`€${pdr.costoUnit.toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/Smc`} color={C.gasLight} />
  <KPICard label="Totale Fatturato" value={fmtEuro(pdr.totFattura, 0)} color={C.accent} />
@@ -4112,13 +4217,13 @@ function GasPDRAnalysis() {
  </div>
  </div>
 
- <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+ <div style={S.chartGrid2}>
  <ChartCard title="Trend Consumo Mensile (Smc)">
  <ResponsiveContainer width="100%" height={240}>
- <BarChart data={pdr.monthly.map(d => ({ name: MONTHS[d.m], consumo: d.consumo }))}>
+ <BarChart data={pdr.monthly}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickDim} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} Smc`} />
  <Bar dataKey="consumo" fill={C.gas} radius={[4,4,0,0]} name="Smc" />
  </BarChart>
@@ -4126,10 +4231,10 @@ function GasPDRAnalysis() {
  </ChartCard>
  <ChartCard title="Trend Costo Mensile (€)">
  <ResponsiveContainer width="100%" height={240}>
- <BarChart data={pdr.monthly.map(d => ({ name: MONTHS[d.m], costo: d.costo }))}>
+ <BarChart data={pdr.monthly.map(d => ({ ...d, costo: +d.costo.toFixed(0) }))}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${v}`} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${v}`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
  <Bar dataKey="costo" fill={C.accent} radius={[4,4,0,0]} name="€" />
  </BarChart>
@@ -4137,7 +4242,7 @@ function GasPDRAnalysis() {
  </ChartCard>
  </div>
 
- <ChartCard title="Scomposizione Costi Annua" style={{ marginBottom: 20 }}>
+ <ChartCard title="Scomposizione Costi Annua" style={S.mb20}>
  <ResponsiveContainer width="100%" height={200}>
  <PieChart>
  <Pie data={[
@@ -4149,7 +4254,7 @@ function GasPDRAnalysis() {
  <Cell fill={C.materia} /><Cell fill={C.distrib} /><Cell fill={C.oneri} /><Cell fill={C.imposte} />
  </Pie>
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  </PieChart>
  </ResponsiveContainer>
  </ChartCard>
@@ -4157,6 +4262,7 @@ function GasPDRAnalysis() {
  <SectionTitle>Storico Fatture</SectionTitle>
  <DataTable exportFilename="gas_pdr"
  columns={[
+ { key: "anno", label: "Anno" },
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
  { key: "meseEmissione", label: "Mese Emiss.", render: v => MONTHS[v] },
  { key: "consumoSmc", label: "Consumo Smc", align: "right", render: v => fmt(v) },
@@ -4164,7 +4270,7 @@ function GasPDRAnalysis() {
  { key: "totaleFattura", label: "Totale €", align: "right", render: v => <strong>{fmtEuro(v)}</strong> },
  { key: "tipoFattura", label: "Tipo", render: v => <Badge color={(v||"").includes("Storno") ? C.danger : C.success}>{v || "Fattura"}</Badge> },
  ]}
- data={GAS_DATA.filter(d => d.pdr === pdr.id)}
+ data={GD.filter(d => d.pdr === pdr.id).sort((a,b) => a.anno - b.anno || a.meseConsumi - b.meseConsumi)}
  maxHeight={320}
  />
  </div>
@@ -4175,11 +4281,15 @@ function GasPDRAnalysis() {
  <div>
  <SectionTitle sub="Overview dei punti di riconsegna con KPI aggregati e drill-down per singolo PDR">Analisi per PDR — Gas Naturale</SectionTitle>
 
+ <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
+
+  <DeviceFilterBar type="pdr" selValue={selPdr} setSelValue={setSelPdr} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={pdrOptions} fornitoreOptions={fornitoreOptions} devices={pdrs} filteredCount={GD.length} totalCount={_GD0.length} accentColor={C.gas} />
+
  {/* OVERVIEW KPIs */}
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+ <div style={S.kpiGrid}>
  <KPICard label="PDR Totali" value={PDRS.length} color={C.gas} />
- <KPICard label="Consumo Totale Annuo" value={`${fmt(totalConsumo)} Smc`} color={C.gasLight} />
- <KPICard label="Spesa Totale Annua" value={fmtEuro(totalFattura, 0)} color={C.accent} />
+ <KPICard label="Consumo Totale" value={`${fmt(totalConsumo)} Smc`} color={C.gasLight} />
+ <KPICard label="Spesa Totale" value={fmtEuro(totalFattura, 0)} color={C.accent} />
  <KPICard label="Costo Medio" value={`€${avgCostoUnit.toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/Smc`} color={C.success} />
  <KPICard label="PCS Medio" value={`${avgPCSAll.toFixed(2)} kJ/Smc`} color={C.accentLight} />
  </div>
@@ -4190,7 +4300,7 @@ function GasPDRAnalysis() {
  <ResponsiveContainer width="100%" height={180}>
  <BarChart data={pdrStats.map(p => ({ name: p.city, consumo: p.totConsumo }))} layout="vertical" margin={{ left: 80 }}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis type="number" tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis type="number" tick={S.axisTickDim} />
  <YAxis type="category" dataKey="name" tick={{ fill: C.textMuted, fontSize: 11 }} width={80} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} Smc`} />
  <Bar dataKey="consumo" fill={C.gas} radius={[0,6,6,0]} name="Smc" />
@@ -4201,12 +4311,12 @@ function GasPDRAnalysis() {
  <ResponsiveContainer width="100%" height={180}>
  <LineChart data={Array.from({ length: 12 }, (_, m) => {
  const o = { name: MONTHS[m] };
- pdrStats.forEach(p => { o[p.city] = p.monthly[m].consumo; });
+ pdrStats.forEach(p => { o[p.city] = p.monthly.filter(d => d.k.endsWith(`-${String(m).padStart(2,"0")}`)).reduce((s,d) => s + d.consumo, 0); });
  return o;
  })}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} />
  <Tooltip contentStyle={customTooltipStyle} />
  {pdrStats.map((p, i) => <Line key={p.id} dataKey={p.city} stroke={[C.gas, C.gasLight][i % 2]} strokeWidth={2} dot={{ r: 3 }} name={p.city} />)}
  </LineChart>
@@ -4215,17 +4325,17 @@ function GasPDRAnalysis() {
  </div>
 
  {/* FILTERS */}
- <div style={{ display: "flex", gap: 10, marginBottom: 16, flexWrap: "wrap", alignItems: "center" }}>
+ <div style={S.filterRow}>
  <input
  value={searchPdr} onChange={e => setSearchPdr(e.target.value)}
  placeholder=" Cerca PDR, sito, persona..."
- style={{ flex: 1, minWidth: 220, padding: "9px 14px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 13, fontFamily: "inherit", outline: "none" }}
+ style={S.searchInput}
  />
- <select value={filterCity} onChange={e => setFilterCity(e.target.value)} style={{ padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" }}>
+ <select value={filterCity} onChange={e => setFilterCity(e.target.value)} style={S.filterSelect12}>
  <option value="all">Tutte le città</option>
  {cities.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
- <select value={filterCdc} onChange={e => setFilterCdc(e.target.value)} style={{ padding: "9px 12px", borderRadius: 8, border: `1px solid ${C.border}`, background: C.card, color: C.text, fontSize: 12, fontFamily: "inherit" }}>
+ <select value={filterCdc} onChange={e => setFilterCdc(e.target.value)} style={S.filterSelect12}>
  <option value="all">Tutti i CdC</option>
  {cdcs.map(c => <option key={c} value={c}>{c}</option>)}
  </select>
@@ -4276,7 +4386,12 @@ function GasDashboard({ view }) {
 
 function GasContabilita() {
  const { gasData, pdrs } = useCompanyFilter();
- const { preset, setPreset, filtered: GD, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(gasData);
+ const [selPdr, setSelPdr] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _GD0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(gasData);
+ const GD = useMemo(() => _GD0.filter(d => (selPdr === "all" || d.pdr === selPdr) && (selFornitore === "all" || d.fornitore === selFornitore)), [_GD0, selPdr, selFornitore]);
+ const pdrOptions = useMemo(() => [...new Set(_GD0.map(d => d.pdr))].sort(), [_GD0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_GD0.map(d => d.fornitore).filter(Boolean))].sort(), [_GD0]);
  const byMonth = buildTimeline(GD, "meseEmissione", rows => {
  const totConsumo = rows.reduce((s, d) => s + d.consumoSmc, 0);
  const totFatt = rows.reduce((s, d) => s + d.totaleFattura, 0);
@@ -4291,7 +4406,9 @@ function GasContabilita() {
  <SectionTitle sub="Dati organizzati per data di emissione fattura">Vista Contabilità — Gas Naturale</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+  <DeviceFilterBar type="pdr" selValue={selPdr} setSelValue={setSelPdr} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={pdrOptions} fornitoreOptions={fornitoreOptions} devices={pdrs} filteredCount={GD.length} totalCount={_GD0.length} accentColor={C.gas} />
+
+ <div style={S.kpiGrid}>
  <KPICard label="Consumo Totale" value={`${fmt(totConsumo)} Smc`} color={C.gas} />
  <KPICard label="Costo Medio" value={totConsumo > 0 ? `€${( totFatt / totConsumo).toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/Smc` : "—"} color={C.gasLight} />
  <KPICard label="PDR Attivi" value={pdrs.length} color={C.success} />
@@ -4299,12 +4416,12 @@ function GasContabilita() {
  <KPICard label="Totale Fatturato" value={fmtEuro(totFatt, 0)} color={C.gas} />
  </div>
 
- <ChartCard title="Trend Fatturato per Data Emissione" exportData={byMonth} exportFilename="gas_fatturato" style={{ marginBottom: 20 }}>
+ <ChartCard title="Trend Fatturato per Data Emissione" exportData={byMonth} exportFilename="gas_fatturato" style={S.mb20}>
  <ResponsiveContainer width="100%" height={280}>
  <ComposedChart data={byMonth}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis yAxisId="l" tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis yAxisId="l" tick={S.axisTickDim} />
  <YAxis yAxisId="r" orientation="right" tick={{ fill: C.gasLight, fontSize: 11 }} />
  <Tooltip contentStyle={customTooltipStyle} />
  <Bar yAxisId="l" dataKey="fatturato" fill={C.gas} name="Fatturato €" radius={[4,4,0,0]} />
@@ -4317,14 +4434,19 @@ function GasContabilita() {
  <FilteredTable exportFilename="gas_contabilita"
  data={GD}
  filters={[
- { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr },
+      { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr, format: v => { const p = pdrs.find(p => p.id === v); return p ? `${v} — ${p.site}` : v; } },
+      { key: "fornitore", label: "Tutti gli operatori", accessor: d => d.fornitore || "N/D" },
+      { key: "numeroFattura", label: "Tutte le fatture", accessor: d => d.numeroFattura || "N/D" },
  { key: "site", label: "Tutti i siti", accessor: d => d.site },
  { key: "mese", label: "Tutti i mesi", accessor: d => d.meseEmissione, format: v => MONTHS[parseInt(v)] },
  ]}
  columns={[
  { key: "meseEmissione", label: "Mese Emissione", render: v => MONTHS[v] },
+      { key: "numeroFattura", label: "N. Fattura" },
  { key: "pdr", label: "PDR" },
+ { key: "anno", label: "Anno" },
  { key: "site", label: "Sito" },
+      { key: "fornitore", label: "Operatore" },
  { key: "distributor", label: "Distributore" },
  { key: "consumoSmc", label: "Consumo Smc", align: "right", render: v => fmt(v) },
  { key: "pcsMedio", label: "PCS", align: "right" },
@@ -4339,7 +4461,12 @@ function GasContabilita() {
 
 function GasCompetenza() {
  const { gasData, pdrs } = useCompanyFilter();
- const { preset, setPreset, filtered: GD, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(gasData);
+ const [selPdr, setSelPdr] = useState("all");
+ const [selFornitore, setSelFornitore] = useState("all");
+ const { preset, setPreset, filtered: _GD0, customFrom, setCustomFrom, customTo, setCustomTo } = usePeriodFilter(gasData);
+ const GD = useMemo(() => _GD0.filter(d => (selPdr === "all" || d.pdr === selPdr) && (selFornitore === "all" || d.fornitore === selFornitore)), [_GD0, selPdr, selFornitore]);
+ const pdrOptions = useMemo(() => [...new Set(_GD0.map(d => d.pdr))].sort(), [_GD0]);
+ const fornitoreOptions = useMemo(() => [...new Set(_GD0.map(d => d.fornitore).filter(Boolean))].sort(), [_GD0]);
  const byMonth = buildTimeline(GD, "meseConsumi", rows => {
  const totConsumo = rows.reduce((s, d) => s + d.consumoSmc, 0);
  const totFatt = rows.reduce((s, d) => s + d.totaleFattura, 0);
@@ -4354,7 +4481,9 @@ function GasCompetenza() {
  <SectionTitle sub="Dati organizzati per periodo di consumo effettivo">Vista Competenza — Gas Naturale</SectionTitle>
  <PeriodFilterBar preset={preset} setPreset={setPreset} customFrom={customFrom} setCustomFrom={setCustomFrom} customTo={customTo} setCustomTo={setCustomTo} />
 
- <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))", gap: 14, marginBottom: 24 }}>
+  <DeviceFilterBar type="pdr" selValue={selPdr} setSelValue={setSelPdr} selFornitore={selFornitore} setSelFornitore={setSelFornitore} options={pdrOptions} fornitoreOptions={fornitoreOptions} devices={pdrs} filteredCount={GD.length} totalCount={_GD0.length} accentColor={C.gas} />
+
+ <div style={S.kpiGrid}>
  <KPICard label="Consumo Totale" value={`${fmt(totConsumo)} Smc`} color={C.gas} />
  <KPICard label="Costo Medio" value={totConsumo > 0 ? `€${( totFatt / totConsumo).toLocaleString("it-IT", {minimumFractionDigits:4, maximumFractionDigits:4})}/Smc` : "—"} color={C.gasLight} />
  <KPICard label="PDR Attivi" value={pdrs.length} color={C.success} />
@@ -4362,13 +4491,13 @@ function GasCompetenza() {
  <KPICard label="Totale Fatturato" value={fmtEuro(totFatt, 0)} color={C.gas} />
  </div>
 
- <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+ <div style={S.chartGrid2}>
  <ChartCard title="Trend Consumo Smc — per competenza" exportData={byMonth} exportFilename="gas_consumi_competenza">
  <ResponsiveContainer width="100%" height={280}>
  <ComposedChart data={byMonth}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis yAxisId="l" tick={{ fill: C.textDim, fontSize: 11 }} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis yAxisId="l" tick={S.axisTickDim} />
  <YAxis yAxisId="r" orientation="right" tick={{ fill: C.gasLight, fontSize: 11 }} />
  <Tooltip contentStyle={customTooltipStyle} />
  <Bar yAxisId="l" dataKey="consumo" fill={C.gas} name="Consumo Smc" radius={[4,4,0,0]} />
@@ -4398,7 +4527,7 @@ function GasCompetenza() {
  {gasBreakdown.map((e, i) => <Cell key={i} fill={e.color} />)}
  </Pie>
  <Tooltip contentStyle={customTooltipStyle} formatter={(v) => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  </PieChart>
  </ResponsiveContainer>
  );
@@ -4410,7 +4539,8 @@ function GasCompetenza() {
  <FilteredTable exportFilename="gas_competenza"
  data={GD}
  filters={[
- { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr },
+      { key: "pdr", label: "Tutti i PDR", accessor: d => d.pdr, format: v => { const p = pdrs.find(p => p.id === v); return p ? `${v} — ${p.site}` : v; } },
+      { key: "fornitore", label: "Tutti gli operatori", accessor: d => d.fornitore || "N/D" },
  { key: "site", label: "Tutti i siti", accessor: d => d.site },
  { key: "mese", label: "Tutti i mesi", accessor: d => d.meseConsumi, format: v => MONTHS[parseInt(v)] },
  ]}
@@ -4418,7 +4548,9 @@ function GasCompetenza() {
  { key: "meseConsumi", label: "Mese Comp.", render: v => MONTHS[v] },
  { key: "pdr", label: "PDR" },
  { key: "site", label: "Sito" },
+      { key: "fornitore", label: "Operatore" },
  { key: "distributor", label: "Distributore" },
+ { key: "anno", label: "Anno" },
  { key: "consumoSmc", label: "Consumo Smc", align: "right", render: v => fmt(v) },
  { key: "pcsMedio", label: "PCS", align: "right" },
  { key: "totaleFattura", label: "Totale €", align: "right", render: v => <strong>{fmtEuro(v)}</strong> },
@@ -5297,14 +5429,14 @@ function UtilityBudgetTab({ utility }) {
  </div>
 
  {/* Chart */}
- <ChartCard title={`Budget ${budgetYear} vs Actual ${refYear} — ${meta.label}${selectedDevice !== "all" && isEG ? ` — ${selectedDevice}` : ""}`} style={{ marginBottom: 20 }}>
+ <ChartCard title={`Budget ${budgetYear} vs Actual ${refYear} — ${meta.label}${selectedDevice !== "all" && isEG ? ` — ${selectedDevice}` : ""}`} style={S.mb20}>
  <ResponsiveContainer width="100%" height={260}>
  <ComposedChart data={comparison}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  <Bar dataKey="budget" fill={`${meta.color}55`} stroke={meta.color} strokeWidth={1} name="Budget" radius={[4, 4, 0, 0]} />
  <Bar dataKey="actual" fill={meta.color} name="Actual" radius={[4, 4, 0, 0]} />
  </ComposedChart>
@@ -5526,7 +5658,7 @@ function BudgetOverview() {
     { key: "overview", label: "Panoramica" },
     { key: "whatif", label: "Scenari What-If" },
     { key: "storico", label: `Storico Scenari (${savedScenarios.length})` },
-   ]} active={budgetTab} onChange={setBudgetTab} style={{ marginBottom: 20 }} />
+   ]} active={budgetTab} onChange={setBudgetTab} style={S.mb20} />
 
    {budgetTab === "overview" && <>
    {/* Grand Total KPIs */}
@@ -5537,12 +5669,12 @@ function BudgetOverview() {
    </div>
 
    {/* Monthly chart — Budget + Consolidato + floating Delta bar */}
-   <ChartCard title={`Budget ${budgetYear} vs Consolidato ${refYear} — Totale Mensile`} exportData={monthlyTotals} exportFilename="budget_consolidato" style={{ marginBottom: 24 }}>
+   <ChartCard title={`Budget ${budgetYear} vs Consolidato ${refYear} — Totale Mensile`} exportData={monthlyTotals} exportFilename="budget_consolidato" style={S.mb24}>
     <ResponsiveContainer width="100%" height={340}>
      <BarChart data={varData} barGap={2} barCategoryGap="16%">
       <CartesianGrid strokeDasharray="3 3" stroke={C.border} vertical={false} />
       <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11, fontWeight: 600 }} axisLine={{ stroke: C.border }} tickLine={false} />
-      <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} domain={[0, 'auto']} />
+      <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} axisLine={false} tickLine={false} domain={[0, 'auto']} />
       <Tooltip content={<BudgetVarTooltip varData={varData} />} cursor={{ fill: "rgba(109,40,217,0.04)" }} />
       <Legend wrapperStyle={{ fontSize: 11, fontWeight: 600, paddingTop: 6 }} iconType="square" iconSize={10} payload={VARIANCE_LEGEND} />
       <Bar dataKey="budget" fill={`${C.accent}44`} stroke={`${C.accent}88`} strokeWidth={1} radius={[4, 4, 0, 0]} />
@@ -5824,14 +5956,14 @@ function BudgetWhatIf({ onSave, utilData, budgetYear: parentBudgetYear, refYear:
    </div>
 
    {/* Scenario chart */}
-   <ChartCard title={`Scenario Budget ${scenarioBudgetYear} vs Originale vs Consolidato ${scenarioRefYear} — Totale Mensile`} style={{ marginBottom: 24 }}>
+   <ChartCard title={`Scenario Budget ${scenarioBudgetYear} vs Originale vs Consolidato ${scenarioRefYear} — Totale Mensile`} style={S.mb24}>
     <ResponsiveContainer width="100%" height={300}>
      <ComposedChart data={chartData}>
       <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-      <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
-      <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+      <XAxis dataKey="name" tick={S.axisTickDim} />
+      <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
       <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
-      <Legend wrapperStyle={{ fontSize: 11 }} />
+      <Legend wrapperStyle={S.legendSmall} />
       <Bar dataKey="scenario" fill={C.accent} name="Scenario" radius={[4, 4, 0, 0]} />
       <Line dataKey="originale" stroke={C.textMuted} strokeWidth={2} strokeDasharray="5 5" dot={{ r: 2, fill: C.textMuted }} name="Budget Originale" />
       <Line dataKey="consolidato" stroke={C.success} strokeWidth={2} dot={{ r: 2, fill: C.success }} name={`Consolidato ${scenarioRefYear}`} />
@@ -6202,7 +6334,7 @@ function ForecastDashboard() {
   { key: "scenari", label: "Scenari What-If" },
   { key: "proiezione", label: "Proiezione 3-6 Mesi" },
   { key: "storico", label: `Storico Scenari (${savedScenarios.length})` },
- ]} active={forecastTab} onChange={setForecastTab} style={{ marginBottom: 20 }} />
+ ]} active={forecastTab} onChange={setForecastTab} style={S.mb20} />
 
  {forecastTab === "forecast" && <>
  {/* Utility toggle */}
@@ -6386,7 +6518,7 @@ function ScenarioBuilder({ onSave }) {
    </div>
 
    {/* Editable monthly prices & consumi */}
-   <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginBottom: 20 }}>
+   <div style={S.chartGrid2}>
     <div style={{ background: C.card, borderRadius: 12, padding: 16, border: `1px solid ${C.border}` }}>
      <div style={{ fontSize: 13, fontWeight: 700, color: meta.color, marginBottom: 10 }}>Prezzi Futures Scenario ({futures.unit})</div>
      <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 1fr)", gap: 6 }}>
@@ -6428,14 +6560,14 @@ function ScenarioBuilder({ onSave }) {
    </div>
 
    {/* Scenario chart */}
-   <ChartCard title={`Scenario vs Base vs Actual 2025 — ${meta.label}`} style={{ marginBottom: 20 }}>
+   <ChartCard title={`Scenario vs Base vs Actual 2025 — ${meta.label}`} style={S.mb20}>
     <ResponsiveContainer width="100%" height={300}>
      <ComposedChart data={scenarioMonths}>
       <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-      <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
-      <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+      <XAxis dataKey="name" tick={S.axisTickDim} />
+      <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
       <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
-      <Legend wrapperStyle={{ fontSize: 11 }} />
+      <Legend wrapperStyle={S.legendSmall} />
       <Bar dataKey="scenario" fill={meta.color} name="Scenario" radius={[4, 4, 0, 0]} />
       <Line dataKey="base" stroke={C.textMuted} strokeWidth={2} strokeDasharray="5 5" dot={{ r: 2, fill: C.textMuted }} name="Forecast Base" />
       <Line dataKey="actual2025" stroke={C.success} strokeWidth={2} dot={{ r: 2, fill: C.success }} name="Actual 2025" />
@@ -6789,7 +6921,7 @@ function ForecastUtilityDetail({ utility }) {
  </div>
 
  {/* Chart */}
- <ChartCard title={`Consolidato + Forecast 2026 vs Actual 2025 — ${meta.label}`} style={{ marginBottom: 20 }}>
+ <ChartCard title={`Consolidato + Forecast 2026 vs Actual 2025 — ${meta.label}`} style={S.mb20}>
  <div style={{ display: "flex", gap: 16, marginBottom: 8, paddingLeft: 8, flexWrap: "wrap" }}>
   <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 10, fontWeight: 600 }}>
    <div style={{ width: 12, height: 12, borderRadius: 2, background: C.success }}></div> <span style={{ color: C.textMuted }}>Consolidato 2026 (Q1)</span>
@@ -6807,8 +6939,8 @@ function ForecastUtilityDetail({ utility }) {
  <ResponsiveContainer width="100%" height={300}>
  <ComposedChart data={forecastMonths}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
  <Bar dataKey="consolidato" stackId="a" fill={C.success} name="Consolidato Q1 2026" />
  <Bar dataKey="forecastMateria" stackId="a" fill={meta.color} name="Forecast — Materia Prima" />
@@ -6852,6 +6984,16 @@ function ForecastUtilityDetail({ utility }) {
 }
 
 // ─── AI ASSISTANT ──────────────────────────────────────────────────────────────
+
+
+// Simple HTML sanitizer for AI responses
+function sanitizeHtml(html) {
+ const allowed = ['strong', 'em', 'b', 'i', 'code', 'span', 'br'];
+ return html.replace(/<\/?([a-zA-Z]+)(\s[^>]*)?\/?>|/g, (match, tag) => {
+  if (!tag) return match;
+  return allowed.includes(tag.toLowerCase()) ? match : match.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+ });
+}
 
 function buildDataContext() {
  // Summarize the full dataset into a compact context for the AI
@@ -7022,12 +7164,12 @@ function AIAssistant() {
  if (line.startsWith('### ')) return <h4 key={i} style={{ margin: '12px 0 6px', fontSize: 14, fontWeight: 700, color: C.energyLight }}>{line.slice(4)}</h4>;
  if (line.startsWith('## ')) return <h3 key={i} style={{ margin: '14px 0 6px', fontSize: 15, fontWeight: 700, color: C.energy }}>{line.slice(3)}</h3>;
  // List items
- if (line.match(/^[-•]\s/)) return <div key={i} style={{ paddingLeft: 16, position: 'relative', marginBottom: 3 }}><span style={{ position: 'absolute', left: 4, color: C.energy }}>•</span><span dangerouslySetInnerHTML={{ __html: processed.slice(2) }} /></div>;
- if (line.match(/^\d+\.\s/)) return <div key={i} style={{ paddingLeft: 20, position: 'relative', marginBottom: 3 }}><span style={{ position: 'absolute', left: 0, color: C.energy, fontWeight: 700 }}>{line.match(/^\d+/)[0]}.</span><span dangerouslySetInnerHTML={{ __html: processed.replace(/^\d+\.\s/, '') }} /></div>;
+ if (line.match(/^[-•]\s/)) return <div key={i} style={{ paddingLeft: 16, position: 'relative', marginBottom: 3 }}><span style={{ position: 'absolute', left: 4, color: C.energy }}>•</span><span dangerouslySetInnerHTML={{ __html: sanitizeHtml(processed.slice(2)) }} /></div>;
+ if (line.match(/^\d+\.\s/)) return <div key={i} style={{ paddingLeft: 20, position: 'relative', marginBottom: 3 }}><span style={{ position: 'absolute', left: 0, color: C.energy, fontWeight: 700 }}>{line.match(/^\d+/)[0]}.</span><span dangerouslySetInnerHTML={{ __html: sanitizeHtml(processed.replace(/^\d+\.\s/, '')) }} /></div>;
  // Empty line
  if (!line.trim()) return <div key={i} style={{ height: 8 }} />;
  // Normal
- return <div key={i} style={{ marginBottom: 2 }} dangerouslySetInnerHTML={{ __html: processed }} />;
+ return <div key={i} style={{ marginBottom: 2 }} dangerouslySetInnerHTML={{ __html: sanitizeHtml(processed) }} />;
  });
  };
 
@@ -7319,14 +7461,14 @@ function BuildingDashboard() {
  </div>
 
  {/* Horizontal bar chart */}
- <ChartCard title="Costo Annuo per Sito" exportData={buildings} exportFilename="forecast_costo_sito" style={{ marginBottom: 20 }}>
+ <ChartCard title="Costo Annuo per Sito" exportData={buildings} exportFilename="forecast_costo_sito" style={S.mb20}>
  <ResponsiveContainer width="100%" height={Math.max(180, buildings.length * 48)}>
  <BarChart data={buildings} layout="vertical" margin={{ left: 180 }}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis type="number" tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+ <XAxis type="number" tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
  <YAxis type="category" dataKey="name" tick={{ fill: C.textMuted, fontSize: 11 }} width={170} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
- <Legend wrapperStyle={{ fontSize: 11 }} />
+ <Legend wrapperStyle={S.legendSmall} />
  <Bar dataKey="eCost" stackId="a" fill={C.energy} name="Energia" />
  <Bar dataKey="gCost" stackId="a" fill={C.gas} name="Gas" />
  <Bar dataKey="wCost" stackId="a" fill={C.water} name="Acqua" radius={[0, 4, 4, 0]} />
@@ -7770,8 +7912,8 @@ function BuildingDetail({ building: b, onClose }) {
  <ResponsiveContainer width="100%" height={280}>
  <ComposedChart data={monthly}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 11 }} />
- <YAxis tick={{ fill: C.textDim, fontSize: 11 }} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickDim} />
+ <YAxis tick={S.axisTickDim} tickFormatter={v => `€${(v / 1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
  <Legend wrapperStyle={{ fontSize: 10 }} />
  <Bar dataKey="energia" stackId="a" fill={C.energy} name="Energia" />
@@ -7783,7 +7925,7 @@ function BuildingDetail({ building: b, onClose }) {
  </ChartCard>
  </div>
  {/* Monthly cost table */}
- <ChartCard title="Dettaglio Mensile per Utility (€)" style={{ marginBottom: 20 }}>
+ <ChartCard title="Dettaglio Mensile per Utility (€)" style={S.mb20}>
  <div style={{ overflowX: "auto" }}>
  <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 11 }}>
  <thead>
@@ -7837,8 +7979,8 @@ function BuildingDetail({ building: b, onClose }) {
  <ResponsiveContainer width="100%" height={180}>
  <ComposedChart data={monthly}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
- <YAxis yAxisId="kwh" tick={{ fill: C.textDim, fontSize: 10 }} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis yAxisId="kwh" tick={S.axisTickSmall} tickFormatter={v => `${(v/1000).toFixed(0)}k`} />
  <YAxis yAxisId="eur" orientation="right" tick={{ fill: C.energy, fontSize: 10 }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
  <Tooltip contentStyle={customTooltipStyle} />
  <Bar yAxisId="kwh" dataKey="kwh" fill={`${C.energy}44`} name="kWh" radius={[3,3,0,0]} />
@@ -7870,8 +8012,8 @@ function BuildingDetail({ building: b, onClose }) {
  <ResponsiveContainer width="100%" height={180}>
  <ComposedChart data={monthly}>
  <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
- <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
- <YAxis yAxisId="smc" tick={{ fill: C.textDim, fontSize: 10 }} />
+ <XAxis dataKey="name" tick={S.axisTickSmall} />
+ <YAxis yAxisId="smc" tick={S.axisTickSmall} />
  <YAxis yAxisId="eur" orientation="right" tick={{ fill: C.gas, fontSize: 10 }} tickFormatter={v => `€${v}`} />
  <Tooltip contentStyle={customTooltipStyle} />
  <Bar yAxisId="smc" dataKey="smc" fill={`${C.gas}44`} name="Smc" radius={[3,3,0,0]} />
@@ -7892,7 +8034,7 @@ function BuildingDetail({ building: b, onClose }) {
    <KPICard label="Incidenza su Totale" value={`${(wCost / Math.max(totalCost, 1) * 100).toFixed(1).replace(".", ",")}%`} color="#0284c7" />
   </div>
   <div style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 16, marginBottom: 20 }}>
-   <ChartCard title="Andamento Mensile Costi Acqua" exportData={chartData} exportFilename="acqua_andamento_mensile">
+   <ChartCard title="Andamento Mensile Costi Acqua" exportData={wData.monthly.map((m, i) => ({ mese: MONTHS[i], acquedotto: m.acquedotto, fognatura: m.fognatura, depurazione: m.depurazione, totale: m.acquedotto + m.fognatura + m.depurazione + m.perequazione + m.altri }))} exportFilename="acqua_andamento_mensile">
     <ResponsiveContainer width="100%" height={280}>
      <ComposedChart data={wData.monthly.map((m, i) => ({ mese: MONTHS[i], acquedotto: m.acquedotto, fognatura: m.fognatura, depurazione: m.depurazione, totale: m.acquedotto + m.fognatura + m.depurazione + m.perequazione + m.altri }))}>
       <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
@@ -8132,8 +8274,8 @@ function BuildingDetail({ building: b, onClose }) {
         <ResponsiveContainer width="100%" height={200}>
          <BarChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-          <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
-          <YAxis tick={{ fill: C.textDim, fontSize: 10 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+          <XAxis dataKey="name" tick={S.axisTickSmall} />
+          <YAxis tick={S.axisTickSmall} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
           <Tooltip contentStyle={customTooltipStyle} formatter={v => fmtEuro(v, 0)} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           {years.map((y, i) => <Bar key={y} dataKey={"costo_" + y} fill={i === 0 ? color + "88" : color} name={"" + y} radius={[3,3,0,0]} />)}
@@ -8149,8 +8291,8 @@ function BuildingDetail({ building: b, onClose }) {
         <ResponsiveContainer width="100%" height={200}>
          <LineChart data={chartData}>
           <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-          <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
-          <YAxis tick={{ fill: C.textDim, fontSize: 10 }} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
+          <XAxis dataKey="name" tick={S.axisTickSmall} />
+          <YAxis tick={S.axisTickSmall} tickFormatter={v => v >= 1000 ? `${(v/1000).toFixed(0)}k` : v} />
           <Tooltip contentStyle={customTooltipStyle} formatter={v => `${fmt(v)} ${unit}`} />
           <Legend wrapperStyle={{ fontSize: 10 }} />
           {years.map((y, i) => <Line key={y} dataKey={"consumo_" + y} stroke={i === 0 ? color + "88" : color} strokeWidth={i === years.length - 1 ? 2.5 : 1.5} strokeDasharray={i < years.length - 1 ? "4 3" : ""} dot={false} name={"" + y} />)}
@@ -8296,7 +8438,7 @@ function UtilityManagementPage() {
         {[C.success, C.warn, C.danger].map((c, i) => <Cell key={i} fill={c} />)}
        </Pie>
        <Tooltip contentStyle={customTooltipStyle} />
-       <Legend wrapperStyle={{ fontSize: 11 }} />
+       <Legend wrapperStyle={S.legendSmall} />
       </PieChart>
      </ResponsiveContainer>
     </ChartCard>
@@ -8304,8 +8446,8 @@ function UtilityManagementPage() {
      <ResponsiveContainer width="100%" height={220}>
       <BarChart data={MONTHS.map((m, i) => ({ name: m, ore: +(ticketsResolved / 12 * 2.5 * (0.7 + seededValue("ore_" + i, 0, 0.6))).toFixed(1) }))}>
        <CartesianGrid strokeDasharray="3 3" stroke={C.border} />
-       <XAxis dataKey="name" tick={{ fill: C.textDim, fontSize: 10 }} />
-       <YAxis tick={{ fill: C.textDim, fontSize: 10 }} />
+       <XAxis dataKey="name" tick={S.axisTickSmall} />
+       <YAxis tick={S.axisTickSmall} />
        <Tooltip contentStyle={customTooltipStyle} formatter={v => `${v} h`} />
        <Bar dataKey="ore" fill={C.energyLight} radius={[4,4,0,0]} name="Ore" />
       </BarChart>
@@ -8457,7 +8599,7 @@ function AcquaPlaceholder() {
       <XAxis dataKey="mese" tick={{ fontSize: 11, fill: C.textMuted }} />
       <YAxis tick={{ fontSize: 11, fill: C.textMuted }} tickFormatter={v => `€${(v/1000).toFixed(0)}k`} />
       <Tooltip formatter={v => fmtEuro(v, 0)} />
-      <Legend wrapperStyle={{ fontSize: 11 }} />
+      <Legend wrapperStyle={S.legendSmall} />
       <Bar dataKey="acquedotto" stackId="a" fill="#0ea5e9" name="Acquedotto" />
       <Bar dataKey="fognatura" stackId="a" fill="#38bdf8" name="Fognatura" />
       <Bar dataKey="depurazione" stackId="a" fill="#7dd3fc" name="Depurazione" />
@@ -9344,7 +9486,7 @@ function LoginPage({ onLogin, lang, setLang }) {
      <div style={{ marginBottom: 36, fontSize: 14, color: "#5c5470" }}>{t("Accedi alla tua dashboard utility")}</div>
 
      <form onSubmit={handleLogin}>
-      <div style={{ marginBottom: 20 }}>
+      <div style={S.mb20}>
        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#5c5470", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Username</label>
        <input
         type="text" value={user} onChange={e => setUser(e.target.value)}
@@ -9358,7 +9500,7 @@ function LoginPage({ onLogin, lang, setLang }) {
         onBlur={e => e.target.style.borderColor = "#e2dce8"}
        />
       </div>
-      <div style={{ marginBottom: 24 }}>
+      <div style={S.mb24}>
        <label style={{ display: "block", fontSize: 12, fontWeight: 600, color: "#5c5470", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.5 }}>Password</label>
        <div style={{ position: "relative" }}>
         <input
